@@ -21,7 +21,14 @@
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "clean": "rm -rf dist node_modules"
+    "clean": "rm -rf dist node_modules",
+    "prepublishOnly": "clean-pkg-json"
+  },
+  "clean-pkg-json": {
+    "remove": [
+      "scripts",
+      "devDependencies"
+    ]
   },
   "keywords": [
     "babel",

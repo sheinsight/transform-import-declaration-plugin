@@ -2,14 +2,35 @@
   "name": "@shined/swc-plugin-transform-import-declaration",
   "version": "1.0.0",
   "description": "SWC plugin for transforming import declarations",
+  "main": "swc_plugin_transform_import_declaration.wasm",
+  "files": [
+    "swc_plugin_transform_import_declaration.wasm",
+    "README.md"
+  ],
+  "keywords": [
+    "swc",
+    "swc-plugin",
+    "transform",
+    "import",
+    "import-declaration",
+    "wasm"
+  ],
   "scripts": {
     "build": "cargo build --release --target wasm32-wasip1",
     "postbuild": "cp ../../target/wasm32-wasip1/release/swc_plugin_transform_import_declaration.wasm .",
-    "build:wasi": "cargo build-wasi --release",
     "test": "cargo test",
-    "test:watch": "cargo watch -x test",
     "clean": "cargo clean",
-    "dev": "cargo watch -x 'test'"
+    "prepublishOnly": "clean-pkg-json"
+  },
+  "clean-pkg-json": {
+    "remove": [
+      "scripts"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ityuany/transform-import-declaration-plugin",
+    "directory": "packages/swc"
   },
   "author": "",
   "license": "MIT"
