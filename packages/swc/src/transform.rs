@@ -1,11 +1,7 @@
+use heck::{ToKebabCase, ToLowerCamelCase, ToPascalCase, ToSnakeCase};
 use serde::Deserialize;
-use swc_core::ecma::{
-    ast::*,
-    transforms::testing::test_inline,
-    visit::{visit_mut_pass, VisitMut},
-};
 use swc_core::common::DUMMY_SP;
-use heck::{ToKebabCase, ToLowerCamelCase, ToSnakeCase, ToPascalCase};
+use swc_core::ecma::{ast::*, transforms::testing::test_inline, visit::VisitMut};
 
 /// 文件名转换规则
 #[derive(Clone, Debug, Deserialize, PartialEq)]
@@ -202,11 +198,7 @@ impl ImportTransformer {
                 let import_decl = ImportDecl {
                     span: DUMMY_SP,
                     specifiers: vec![],
-                    src: Box::new(Str {
-                        span: DUMMY_SP,
-                        value: import_path.into(),
-                        raw: None,
-                    }),
+                    src: Box::new(Str { span: DUMMY_SP, value: import_path.into(), raw: None }),
                     type_only: false,
                     with: None,
                     phase: Default::default(),
@@ -230,13 +222,16 @@ impl VisitMut for ImportTransformer {
                     let source = &import_decl.src.value;
 
                     // 收集所有匹配当前source的配置
-                    let matched_configs: Vec<&TransformConfig> = if let Some(source_str) = source.as_str() {
-                        self.config.config.iter()
-                            .filter(|config| config.source.as_str() == source_str)
-                            .collect()
-                    } else {
-                        Vec::new()
-                    };
+                    let matched_configs: Vec<&TransformConfig> =
+                        if let Some(source_str) = source.as_str() {
+                            self.config
+                                .config
+                                .iter()
+                                .filter(|config| config.source.as_str() == source_str)
+                                .collect()
+                        } else {
+                            Vec::new()
+                        };
 
                     if !matched_configs.is_empty() {
                         // 处理命名导入

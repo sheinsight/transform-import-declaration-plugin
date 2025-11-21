@@ -1,0 +1,35 @@
+[workspace]
+members = ["packages/swc"]
+
+resolver = "2"
+
+[workspace.package]
+authors      = []
+edition      = "2021"
+homepage     = ""
+license      = ""
+repository   = "https://gitlab.sheincorp.cn/npmjs/shein-lego/swc-plugins"
+rust-version = "1.82"
+
+[workspace.dependencies]
+heck       = { version = "0.5" }
+serde      = { version = "1.0.228" }
+serde_json = { version = "1.0.145" }
+swc_core   = { version = "48.0.2" }
+# .cargo/config defines few alias to build plugin.
+# cargo build-wasi generates wasm-wasi32 binary
+# cargo build-wasm32 generates wasm32-unknown-unknown binary.
+
+[profile.release]
+# This removes more dead code
+codegen-units = 1
+lto           = true
+
+# Optimize for size
+opt-level = "s"
+
+# Optimize for performance, this is default so you don't need to specify it
+# opt-level = "z"
+
+# Strip debug symbols
+# strip = "symbols

@@ -2,9 +2,8 @@
   "name": "@shined/swc-plugin-transform-import-declaration",
   "version": "1.0.0",
   "description": "SWC plugin for transforming import declarations",
-  "private": true,
   "scripts": {
-    "build": "cargo build --release",
+    "build": "cargo build --release --target wasm32-wasip1",
     "build:wasi": "cargo build-wasi --release",
     "test": "cargo test",
     "test:watch": "cargo watch -x test",
