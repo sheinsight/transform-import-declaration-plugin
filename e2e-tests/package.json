@@ -1,0 +1,19 @@
+{
+  "name": "e2e-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "E2E tests for transform-import-declaration-plugin",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:babel": "vitest run babel.test.ts",
+    "test:swc": "vitest run swc.test.ts",
+    "clean": "rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@swc/core": "^1.10.7",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.12"
+  }
+}

@@ -1,0 +1,17 @@
+[package]
+name         = "swc_plugin_import_replacer"
+version      = "0.1.0"
+edition      = "2021"
+description  = "SWC plugin for transforming import declarations"
+authors      = ["Your Name <your.email@example.com>"]
+repository   = "https://github.com/yourusername/transform-import-declaration-plugin"
+rust-version = "1.79"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+serde = {version = "1.0.228"}
+serde_json = {version = "1.0.145"}
+swc_core   = { version = "48.0.2", features = ["ecma_plugin_transform"] }
+heck = "0.5"

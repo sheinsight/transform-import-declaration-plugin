@@ -1,0 +1,53 @@
+{
+  "name": "@shined/babel-plugin-transform-import-declaration",
+  "version": "1.0.0",
+  "description": "A Babel plugin to transform import declarations for tree-shaking and on-demand loading",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "build:lecp": "lecp",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist node_modules"
+  },
+  "keywords": [
+    "babel",
+    "plugin",
+    "import",
+    "transform",
+    "tree-shaking",
+    "antd",
+    "on-demand"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "@babel/core": "^7.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "@babel/types": "^7.28.5",
+    "@shined/lecp": "^0.1.1",
+    "@types/babel__core": "^7.20.5",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.12"
+  },
+  "dependencies": {
+    "change-case": "^5.4.4"
+  }
+}
