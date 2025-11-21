@@ -1,8 +1,8 @@
 {
   "name": "transform-import-declaration-plugin",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "build": "pnpm -r --filter './packages/*' run build",
     "test": "pnpm -r run test",
@@ -12,11 +12,12 @@
     "test:swc": "pnpm --filter e2e-tests run test:swc",
     "test:watch": "pnpm -r run test:watch",
     "clean": "pnpm -r run clean && rm -rf node_modules",
-    "dev": "pnpm -r --parallel run dev"
+    "dev": "pnpm -r --parallel run dev",
+    "publish": "pnpm -r --filter './packages/*' run publish"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "ityuany",
+  "license": "MIT",
   "packageManager": "pnpm@10.20.0",
   "devDependencies": {
     "@babel/core": "^7.28.5",

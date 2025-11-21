@@ -1,7 +1,9 @@
 {
   "name": "@shined/swc-plugin-transform-import-declaration",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "SWC plugin for transforming import declarations",
+  "author": "ityuany",
+  "license": "MIT",
   "main": "swc_plugin_transform_import_declaration.wasm",
   "files": [
     "swc_plugin_transform_import_declaration.wasm",
@@ -27,11 +29,9 @@
       "scripts"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ityuany/transform-import-declaration-plugin",
-    "directory": "packages/swc"
-  },
-  "author": "",
-  "license": "MIT"
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org",
+    "tag": "latest"
+  }
 }
