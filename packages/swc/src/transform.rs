@@ -1,6 +1,7 @@
 use heck::{ToKebabCase, ToLowerCamelCase, ToPascalCase, ToSnakeCase};
 use serde::Deserialize;
 use swc_core::common::DUMMY_SP;
+use swc_core::ecma::visit::visit_mut_pass;
 use swc_core::ecma::{ast::*, transforms::testing::test_inline, visit::VisitMut};
 
 /// 文件名转换规则
@@ -448,6 +449,8 @@ mod tests {
         assert!(config.validate().is_ok());
     }
 }
+
+#[cfg(test)]
 
 // Integration tests using test_inline macro
 test_inline!(
