@@ -21,5 +21,15 @@
     "access": "public",
     "registry": "https://registry.npmjs.org",
     "tag": "latest"
+  },
+  "scripts": {
+    "build": "cargo build --release --target wasm32-wasip1",
+    "postbuild": "cp ../../target/wasm32-wasip1/release/swc_plugin_transform_import_declaration.wasm .",
+    "test": "cargo test",
+    "clean": "cargo clean",
+    "prepublishOnly": "clean-pkg-json"
+  },
+  "devDependencies":{
+    "clean-pkg-json": "^1.3.0"
   }
 }
