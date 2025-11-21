@@ -12,7 +12,8 @@
     "test:swc": "pnpm --filter e2e-tests run test:swc",
     "test:watch": "pnpm -r run test:watch",
     "clean": "pnpm -r run clean && rm -rf node_modules",
-    "dev": "pnpm -r --parallel run dev"
+    "dev": "pnpm -r --parallel run dev",
+    "publish": "pnpm -r --filter './packages/*' publish"
   },
   "keywords": [],
   "author": "ityuany",
