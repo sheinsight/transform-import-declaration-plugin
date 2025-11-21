@@ -1,6 +1,6 @@
 {
   "name": "@shined/babel-plugin-transform-import-declaration",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Babel plugin to transform import declarations for tree-shaking and on-demand loading",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
