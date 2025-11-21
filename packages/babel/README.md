@@ -268,6 +268,26 @@ This plugin includes comprehensive tests:
 
 All 22 tests pass ✅
 
+## Comparison with SWC Plugin
+
+If you're looking for better performance, consider using the SWC version:
+
+- **[@shined/swc-plugin-transform-import-declaration](https://www.npmjs.com/package/@shined/swc-plugin-transform-import-declaration)** - Faster compilation with Rust/WebAssembly
+- Same features and configuration
+- Significantly better performance for large projects
+
 ## License
 
 MIT
+
+## Author
+
+ityuany
+
+## Related Packages
+
+- **[@shined/swc-plugin-transform-import-declaration](https://www.npmjs.com/package/@shined/swc-plugin-transform-import-declaration)** - SWC version for better performance
+
+## Issues & Contributions
+
+Found a bug or want to contribute? Visit our [GitHub repository](https://github.com/ityuany/transform-import-declaration-plugin)
