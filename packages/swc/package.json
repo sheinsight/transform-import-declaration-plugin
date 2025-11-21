@@ -4,6 +4,7 @@
   "description": "SWC plugin for transforming import declarations",
   "scripts": {
     "build": "cargo build --release --target wasm32-wasip1",
+    "postbuild": "cp ../../target/wasm32-wasip1/release/swc_plugin_transform_import_declaration.wasm .",
     "build:wasi": "cargo build-wasi --release",
     "test": "cargo test",
     "test:watch": "cargo watch -x test",

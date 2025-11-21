@@ -2,7 +2,7 @@
 authors      = ["Your Name <your.email@example.com>"]
 description  = "SWC plugin for transforming import declarations"
 edition      = "2021"
-name         = "swc_plugin_import_replacer"
+name         = "swc_plugin_transform_import_declaration"
 repository   = "https://github.com/yourusername/transform-import-declaration-plugin"
 rust-version = "1.79"
 version      = "0.1.0"

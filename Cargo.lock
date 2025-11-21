@@ -1658,16 +1658,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "swc_plugin_import_replacer"
-version = "0.1.0"
-dependencies = [
- "heck",
- "serde",
- "serde_json",
- "swc_core",
-]
-
-[[package]]
 name = "swc_plugin_macro"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1691,6 +1681,16 @@ dependencies = [
  "swc_ecma_ast",
  "swc_trace_macro",
  "tracing",
+]
+
+[[package]]
+name = "swc_plugin_transform_import_declaration"
+version = "0.1.0"
+dependencies = [
+ "heck",
+ "serde",
+ "serde_json",
+ "swc_core",
 ]
 
 [[package]]

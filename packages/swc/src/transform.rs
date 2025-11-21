@@ -1,8 +1,8 @@
 use heck::{ToKebabCase, ToLowerCamelCase, ToPascalCase, ToSnakeCase};
 use serde::Deserialize;
 use swc_core::common::DUMMY_SP;
-use swc_core::ecma::visit::visit_mut_pass;
-use swc_core::ecma::{ast::*, transforms::testing::test_inline, visit::VisitMut};
+use swc_core::ecma::ast::*;
+use swc_core::ecma::visit::VisitMut;
 
 /// 文件名转换规则
 #[derive(Clone, Debug, Deserialize, PartialEq)]
@@ -451,72 +451,32 @@ mod tests {
 }
 
 #[cfg(test)]
+mod integration_tests {
+    use swc_core::ecma::{transforms::testing::test_inline, visit::visit_mut_pass};
 
-// Integration tests using test_inline macro
-test_inline!(
-    Default::default(),
-    |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
-        config: vec![TransformConfig {
-            source: "antd".to_string(),
-            filename: FilenameCase::KebabCase,
-            output: vec!["antd/es/{{ filename }}.js".to_string()],
-            specifier: SpecifierType::Default,
-            include: None,
-            exclude: None,
-        }],
-    })),
-    test_basic_transform,
-    r#"import { Button } from "antd";"#,
-    r#"import Button from "antd/es/button.js";"#
-);
+    use super::*;
+    // Integration tests using test_inline macro
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
+                source: "antd".to_string(),
+                filename: FilenameCase::KebabCase,
+                output: vec!["antd/es/{{ filename }}.js".to_string()],
+                specifier: SpecifierType::Default,
+                include: None,
+                exclude: None,
+            }],
+        })),
+        test_basic_transform,
+        r#"import { Button } from "antd";"#,
+        r#"import Button from "antd/es/button.js";"#
+    );
 
-test_inline!(
-    Default::default(),
-    |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
-        config: vec![TransformConfig {
-            source: "antd".to_string(),
-            filename: FilenameCase::KebabCase,
-            output: vec![
-                "antd/es/{{ filename }}.js".to_string(),
-                "antd/css/{{ filename }}.css".to_string(),
-            ],
-            specifier: SpecifierType::Default,
-            include: None,
-            exclude: None,
-        }],
-    })),
-    test_with_style_import,
-    r#"import { Button } from "antd";"#,
-    r#"
-import Button from "antd/es/button.js";
-import "antd/css/button.css";
-    "#
-);
-
-test_inline!(
-    Default::default(),
-    |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
-        config: vec![TransformConfig {
-            source: "antd".to_string(),
-            filename: FilenameCase::KebabCase,
-            output: vec!["antd/es/{{ filename }}.js".to_string()],
-            specifier: SpecifierType::Default,
-            include: None,
-            exclude: Some(vec!["Button".to_string()]),
-        }],
-    })),
-    test_with_exclude,
-    r#"import { Button, DatePicker } from "antd";"#,
-    r#"
-import DatePicker from "antd/es/date-picker.js";
-    "#
-);
-
-test_inline!(
-    Default::default(),
-    |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
-        config: vec![
-            TransformConfig {
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
                 source: "antd".to_string(),
                 filename: FilenameCase::KebabCase,
                 output: vec![
@@ -525,126 +485,170 @@ test_inline!(
                 ],
                 specifier: SpecifierType::Default,
                 include: None,
-                exclude: Some(vec!["Button".to_string()]),
-            },
-            TransformConfig {
+                exclude: None,
+            }],
+        })),
+        test_with_style_import,
+        r#"import { Button } from "antd";"#,
+        r#"
+import Button from "antd/es/button.js";
+import "antd/css/button.css";
+    "#
+    );
+
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
                 source: "antd".to_string(),
                 filename: FilenameCase::KebabCase,
-                output: vec![
-                    "antd/es/{{ filename }}.js".to_string(),
-                    "antd/css/{{ filename }}.png".to_string(),
-                ],
+                output: vec!["antd/es/{{ filename }}.js".to_string()],
                 specifier: SpecifierType::Default,
-                include: Some(vec!["Button".to_string()]),
-                exclude: None,
-            },
-        ],
-    })),
-    test_multi_config,
-    r#"import { Button, DatePicker } from "antd";"#,
-    r#"
+                include: None,
+                exclude: Some(vec!["Button".to_string()]),
+            }],
+        })),
+        test_with_exclude,
+        r#"import { Button, DatePicker } from "antd";"#,
+        r#"
+import DatePicker from "antd/es/date-picker.js";
+    "#
+    );
+
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![
+                TransformConfig {
+                    source: "antd".to_string(),
+                    filename: FilenameCase::KebabCase,
+                    output: vec![
+                        "antd/es/{{ filename }}.js".to_string(),
+                        "antd/css/{{ filename }}.css".to_string(),
+                    ],
+                    specifier: SpecifierType::Default,
+                    include: None,
+                    exclude: Some(vec!["Button".to_string()]),
+                },
+                TransformConfig {
+                    source: "antd".to_string(),
+                    filename: FilenameCase::KebabCase,
+                    output: vec![
+                        "antd/es/{{ filename }}.js".to_string(),
+                        "antd/css/{{ filename }}.png".to_string(),
+                    ],
+                    specifier: SpecifierType::Default,
+                    include: Some(vec!["Button".to_string()]),
+                    exclude: None,
+                },
+            ],
+        })),
+        test_multi_config,
+        r#"import { Button, DatePicker } from "antd";"#,
+        r#"
 import Button from "antd/es/button.js";
 import "antd/css/button.png";
 import DatePicker from "antd/es/date-picker.js";
 import "antd/css/date-picker.css";
     "#
-);
+    );
 
-test_inline!(
-    Default::default(),
-    |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
-        config: vec![TransformConfig {
-            source: "lodash".to_string(),
-            filename: FilenameCase::CamelCase,
-            output: vec!["lodash/{{ filename }}.js".to_string()],
-            specifier: SpecifierType::Named,
-            include: None,
-            exclude: None,
-        }],
-    })),
-    test_named_specifier,
-    r#"import { debounce, throttle } from "lodash";"#,
-    r#"
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
+                source: "lodash".to_string(),
+                filename: FilenameCase::CamelCase,
+                output: vec!["lodash/{{ filename }}.js".to_string()],
+                specifier: SpecifierType::Named,
+                include: None,
+                exclude: None,
+            }],
+        })),
+        test_named_specifier,
+        r#"import { debounce, throttle } from "lodash";"#,
+        r#"
 import { debounce } from "lodash/debounce.js";
 import { throttle } from "lodash/throttle.js";
     "#
-);
+    );
 
-test_inline!(
-    Default::default(),
-    |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
-        config: vec![TransformConfig {
-            source: "utils".to_string(),
-            filename: FilenameCase::CamelCase,
-            output: vec!["utils/{{ filename }}.js".to_string()],
-            specifier: SpecifierType::Namespace,
-            include: None,
-            exclude: None,
-        }],
-    })),
-    test_namespace_specifier,
-    r#"import { DateUtils, StringUtils } from "utils";"#,
-    r#"
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
+                source: "utils".to_string(),
+                filename: FilenameCase::CamelCase,
+                output: vec!["utils/{{ filename }}.js".to_string()],
+                specifier: SpecifierType::Namespace,
+                include: None,
+                exclude: None,
+            }],
+        })),
+        test_namespace_specifier,
+        r#"import { DateUtils, StringUtils } from "utils";"#,
+        r#"
 import * as DateUtils from "utils/dateUtils.js";
 import * as StringUtils from "utils/stringUtils.js";
     "#
-);
+    );
 
-test_inline!(
-    Default::default(),
-    |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
-        config: vec![TransformConfig {
-            source: "antd".to_string(),
-            filename: FilenameCase::SnakeCase,
-            output: vec!["antd/es/{{ filename }}.js".to_string()],
-            specifier: SpecifierType::Default,
-            include: None,
-            exclude: None,
-        }],
-    })),
-    test_snake_case,
-    r#"import { DatePicker } from "antd";"#,
-    r#"import DatePicker from "antd/es/date_picker.js";"#
-);
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
+                source: "antd".to_string(),
+                filename: FilenameCase::SnakeCase,
+                output: vec!["antd/es/{{ filename }}.js".to_string()],
+                specifier: SpecifierType::Default,
+                include: None,
+                exclude: None,
+            }],
+        })),
+        test_snake_case,
+        r#"import { DatePicker } from "antd";"#,
+        r#"import DatePicker from "antd/es/date_picker.js";"#
+    );
 
-test_inline!(
-    Default::default(),
-    |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
-        config: vec![TransformConfig {
-            source: "antd".to_string(),
-            filename: FilenameCase::PascalCase,
-            output: vec!["antd/es/{{ filename }}.js".to_string()],
-            specifier: SpecifierType::Default,
-            include: None,
-            exclude: None,
-        }],
-    })),
-    test_pascal_case,
-    r#"import { DatePicker } from "antd";"#,
-    r#"import DatePicker from "antd/es/DatePicker.js";"#
-);
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
+                source: "antd".to_string(),
+                filename: FilenameCase::PascalCase,
+                output: vec!["antd/es/{{ filename }}.js".to_string()],
+                specifier: SpecifierType::Default,
+                include: None,
+                exclude: None,
+            }],
+        })),
+        test_pascal_case,
+        r#"import { DatePicker } from "antd";"#,
+        r#"import DatePicker from "antd/es/DatePicker.js";"#
+    );
 
-test_inline!(
-    Default::default(),
-    |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
-        config: vec![TransformConfig {
-            source: "antd".to_string(),
-            filename: FilenameCase::KebabCase,
-            output: vec!["antd/es/{{ filename }}.js".to_string()],
-            specifier: SpecifierType::Default,
-            include: None,
-            exclude: None,
-        }],
-    })),
-    test_preserve_other_imports,
-    r#"
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
+                source: "antd".to_string(),
+                filename: FilenameCase::KebabCase,
+                output: vec!["antd/es/{{ filename }}.js".to_string()],
+                specifier: SpecifierType::Default,
+                include: None,
+                exclude: None,
+            }],
+        })),
+        test_preserve_other_imports,
+        r#"
 import React from "react";
 import { Button } from "antd";
 import { useState } from "react";
     "#,
-    r#"
+        r#"
 import React from "react";
 import Button from "antd/es/button.js";
 import { useState } from "react";
     "#
-);
+    );
+}
