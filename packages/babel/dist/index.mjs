@@ -2,11 +2,11 @@
 import * as t from "@babel/types";
 
 // src/transform.ts
-import { camelCase, pascalCase, snakeCase, kebabCase } from "change-case";
+import { camelCase, pascalCase, snakeCase, paramCase } from "change-case";
 function transformFilename(name, caseType) {
   switch (caseType) {
     case "kebabCase":
-      return kebabCase(name);
+      return paramCase(name);
     case "camelCase":
       return camelCase(name);
     case "snakeCase":

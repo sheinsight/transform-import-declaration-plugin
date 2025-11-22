@@ -40,7 +40,7 @@ var import_change_case = require("change-case");
 function transformFilename(name, caseType) {
   switch (caseType) {
     case "kebabCase":
-      return (0, import_change_case.kebabCase)(name);
+      return (0, import_change_case.paramCase)(name);
     case "camelCase":
       return (0, import_change_case.camelCase)(name);
     case "snakeCase":
