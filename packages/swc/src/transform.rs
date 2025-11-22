@@ -128,11 +128,11 @@ impl ImportTransformer {
 
     /// 为给定的组件名称和配置生成导入声明
     /// imported_name: 原始导入名称（用于生成文件名和匹配 include/exclude）
-    /// local_name: 本地变量名（用于生成导入语句中的变量名）
+    /// local_ident: 本地变量标识符（包含 SyntaxContext，用于保持作用域绑定关系）
     fn generate_imports(
         &self,
         imported_name: &str,
-        local_name: &str,
+        local_ident: &Ident,
         config: &TransformConfig,
     ) -> Vec<ModuleItem> {
         let transformed_filename = transform_filename(imported_name, &config.filename);
@@ -150,7 +150,7 @@ impl ImportTransformer {
                             span: DUMMY_SP,
                             specifiers: vec![ImportSpecifier::Default(ImportDefaultSpecifier {
                                 span: DUMMY_SP,
-                                local: Ident::new(local_name.into(), DUMMY_SP, Default::default()),
+                                local: local_ident.clone(),
                             })],
                             src: Box::new(Str {
                                 span: DUMMY_SP,
@@ -168,7 +168,7 @@ impl ImportTransformer {
                             span: DUMMY_SP,
                             specifiers: vec![ImportSpecifier::Named(ImportNamedSpecifier {
                                 span: DUMMY_SP,
-                                local: Ident::new(local_name.into(), DUMMY_SP, Default::default()),
+                                local: local_ident.clone(),
                                 imported: None,
                                 is_type_only: false,
                             })],
@@ -188,7 +188,7 @@ impl ImportTransformer {
                             span: DUMMY_SP,
                             specifiers: vec![ImportSpecifier::Namespace(ImportStarAsSpecifier {
                                 span: DUMMY_SP,
-                                local: Ident::new(local_name.into(), DUMMY_SP, Default::default()),
+                                local: local_ident.clone(),
                             })],
                             src: Box::new(Str {
                                 span: DUMMY_SP,
@@ -263,8 +263,8 @@ impl VisitMut for ImportTransformer {
                                         },
                                         None => named.local.sym.as_ref().to_string(),
                                     };
-                                    // 本地变量名（用于生成导入语句）
-                                    let local_name = named.local.sym.as_ref().to_string();
+                                    // 保留原始 Ident（包含 SyntaxContext，用于保持作用域绑定关系）
+                                    let local_ident = &named.local;
 
                                     // 跳过 type-only 导入
                                     if named.is_type_only {
@@ -276,9 +276,9 @@ impl VisitMut for ImportTransformer {
                                     let mut matched = false;
                                     for config in &matched_configs {
                                         if config.matches(&imported_name) {
-                                            // 生成转换后的导入
+                                            // 生成转换后的导入（传递完整的 Ident 以保持 SyntaxContext）
                                             let generated_imports =
-                                                self.generate_imports(&imported_name, &local_name, config);
+                                                self.generate_imports(&imported_name, local_ident, config);
                                             new_items.extend(generated_imports);
                                             matched = true;
                                             break; // 找到匹配的配置后停止
