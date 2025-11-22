@@ -1,4 +1,4 @@
-import { camelCase, pascalCase, snakeCase, kebabCase } from 'change-case';
+import { camelCase, pascalCase, snakeCase, paramCase } from 'change-case';
 import type { FilenameCase, TransformConfig } from './types';
 
 /**
@@ -8,7 +8,7 @@ import type { FilenameCase, TransformConfig } from './types';
 export function transformFilename(name: string, caseType: FilenameCase): string {
   switch (caseType) {
     case 'kebabCase':
-      return kebabCase(name);
+      return paramCase(name);
     case 'camelCase':
       return camelCase(name);
     case 'snakeCase':

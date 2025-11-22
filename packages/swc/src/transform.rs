@@ -678,4 +678,99 @@ import Button from "antd/es/button.js";
 import { useState } from "react";
     "#
     );
+
+    // ==========================================
+    // SyntaxContext 保持测试（变量引用场景）
+    // 这些测试确保转换后的变量名不会被 Hygiene 系统重命名
+    // ==========================================
+
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
+                source: "antd".to_string(),
+                filename: FilenameCase::KebabCase,
+                output: vec!["antd/es/{{ filename }}.js".to_string()],
+                specifier: SpecifierType::Default,
+                include: None,
+                exclude: None,
+            }],
+        })),
+        test_syntax_context_single_usage,
+        // 测试：单个变量引用
+        r#"import { Button } from "antd"; console.log(Button);"#,
+        r#"import Button from "antd/es/button.js"; console.log(Button);"#
+    );
+
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
+                source: "antd".to_string(),
+                filename: FilenameCase::KebabCase,
+                output: vec!["antd/es/{{ filename }}.js".to_string()],
+                specifier: SpecifierType::Default,
+                include: None,
+                exclude: None,
+            }],
+        })),
+        test_syntax_context_multiple_usage,
+        // 测试：多个变量多次引用
+        r#"import { Button, DatePicker } from "antd"; console.log(Button); render(DatePicker);"#,
+        r#"import Button from "antd/es/button.js"; import DatePicker from "antd/es/date-picker.js"; console.log(Button); render(DatePicker);"#
+    );
+
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
+                source: "antd".to_string(),
+                filename: FilenameCase::KebabCase,
+                output: vec!["antd/es/{{ filename }}.js".to_string()],
+                specifier: SpecifierType::Default,
+                include: None,
+                exclude: None,
+            }],
+        })),
+        test_syntax_context_with_alias,
+        // 测试：使用别名时的变量引用
+        r#"import { Button as AntButton } from "antd"; console.log(AntButton);"#,
+        r#"import AntButton from "antd/es/button.js"; console.log(AntButton);"#
+    );
+
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
+                source: "lodash".to_string(),
+                filename: FilenameCase::CamelCase,
+                output: vec!["lodash/{{ filename }}.js".to_string()],
+                specifier: SpecifierType::Named,
+                include: None,
+                exclude: None,
+            }],
+        })),
+        test_syntax_context_named_specifier_usage,
+        // 测试：named specifier 时的变量引用
+        r#"import { debounce } from "lodash"; const fn = debounce(callback, 100);"#,
+        r#"import { debounce } from "lodash/debounce.js"; const fn = debounce(callback, 100);"#
+    );
+
+    test_inline!(
+        Default::default(),
+        |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
+            config: vec![TransformConfig {
+                source: "utils".to_string(),
+                filename: FilenameCase::CamelCase,
+                output: vec!["utils/{{ filename }}.js".to_string()],
+                specifier: SpecifierType::Namespace,
+                include: None,
+                exclude: None,
+            }],
+        })),
+        test_syntax_context_namespace_specifier_usage,
+        // 测试：namespace specifier 时的变量引用
+        r#"import { DateUtils } from "utils"; const date = DateUtils.format(new Date());"#,
+        r#"import * as DateUtils from "utils/dateUtils.js"; const date = DateUtils.format(new Date());"#
+    );
 }

@@ -553,6 +553,137 @@ import { debounce } from "lodash/debounce.js";`
     },
     expected: `import { type ButtonProps } from "antd";
 import Button from "antd/es/button.js";`
+  },
+
+  // ==========================================
+  // SyntaxContext 保持测试（变量引用场景）
+  // 这些测试确保转换后的变量名不会被 Hygiene 系统重命名
+  // ==========================================
+
+  // 单个变量引用
+  {
+    name: 'syntax-context-single-usage',
+    description: '转换后变量引用应保持正确（单个变量）',
+    input: `import { Button } from "antd";
+console.log(Button);`,
+    config: {
+      config: [
+        {
+          source: 'antd',
+          filename: 'kebabCase',
+          output: ['antd/es/{{ filename }}.js']
+        }
+      ]
+    },
+    expected: `import Button from "antd/es/button.js";
+console.log(Button);`
+  },
+
+  // 多个变量多次引用
+  {
+    name: 'syntax-context-multiple-usage',
+    description: '转换后多个变量引用应保持正确',
+    input: `import { Button, DatePicker } from "antd";
+console.log(Button);
+render(DatePicker);`,
+    config: {
+      config: [
+        {
+          source: 'antd',
+          filename: 'kebabCase',
+          output: ['antd/es/{{ filename }}.js']
+        }
+      ]
+    },
+    expected: `import Button from "antd/es/button.js";
+import DatePicker from "antd/es/date-picker.js";
+console.log(Button);
+render(DatePicker);`
+  },
+
+  // 使用别名时的变量引用
+  {
+    name: 'syntax-context-with-alias',
+    description: '使用别名时变量引用应保持正确',
+    input: `import { Button as AntButton } from "antd";
+console.log(AntButton);`,
+    config: {
+      config: [
+        {
+          source: 'antd',
+          filename: 'kebabCase',
+          output: ['antd/es/{{ filename }}.js']
+        }
+      ]
+    },
+    expected: `import AntButton from "antd/es/button.js";
+console.log(AntButton);`
+  },
+
+  // named specifier 时的变量引用
+  {
+    name: 'syntax-context-named-specifier-usage',
+    description: 'named specifier 转换后变量引用应保持正确',
+    input: `import { debounce } from "lodash";
+const fn = debounce(callback, 100);`,
+    config: {
+      config: [
+        {
+          source: 'lodash',
+          filename: 'kebabCase',
+          output: ['lodash/{{ filename }}.js'],
+          specifier: 'named'
+        }
+      ]
+    },
+    expected: `import { debounce } from "lodash/debounce.js";
+const fn = debounce(callback, 100);`
+  },
+
+  // namespace specifier 时的变量引用
+  {
+    name: 'syntax-context-namespace-specifier-usage',
+    description: 'namespace specifier 转换后变量引用应保持正确',
+    input: `import { DateUtils } from "utils";
+const date = DateUtils.format(new Date());`,
+    config: {
+      config: [
+        {
+          source: 'utils',
+          filename: 'camelCase',
+          output: ['utils/{{ filename }}.js'],
+          specifier: 'namespace'
+        }
+      ]
+    },
+    expected: `import * as DateUtils from "utils/dateUtils.js";
+const date = DateUtils.format(new Date());`
+  },
+
+  // 复杂场景：多个引用 + 函数调用
+  {
+    name: 'syntax-context-complex-usage',
+    description: '复杂场景下变量引用应保持正确',
+    input: `import { Button, message } from "antd";
+function App() {
+  message.success("clicked");
+  return Button;
+}`,
+    config: {
+      config: [
+        {
+          source: 'antd',
+          filename: 'kebabCase',
+          output: ['antd/es/{{ filename }}.js']
+        }
+      ]
+    },
+    expected: `import Button from "antd/es/button.js";
+import message from "antd/es/message.js";
+function App() {
+  message.success("clicked");
+  return Button;
+}`
   }
 ];
 
