@@ -4,3 +4,4 @@ target
 *.wasm
 e2e-tests/.swc
 .swc
+packages/.DS_Store
