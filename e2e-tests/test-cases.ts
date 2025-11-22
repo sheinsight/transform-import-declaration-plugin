@@ -575,6 +575,6 @@ export const validationTestCases = [
       ]
     },
     shouldThrow: true,
-    errorMessage: 'include 和 exclude 不能同时配置'
+    errorMessage: "'include' and 'exclude' cannot be used together"
   }
 ];

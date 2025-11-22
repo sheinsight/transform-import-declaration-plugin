@@ -1,7 +1,10 @@
 use heck::{ToKebabCase, ToLowerCamelCase, ToPascalCase, ToSnakeCase};
 use serde::Deserialize;
 use swc_core::common::DUMMY_SP;
-use swc_core::ecma::ast::*;
+use swc_core::ecma::ast::{
+    Ident, ImportDecl, ImportDefaultSpecifier, ImportNamedSpecifier, ImportSpecifier,
+    ImportStarAsSpecifier, ModuleDecl, ModuleExportName, ModuleItem, Str,
+};
 use swc_core::ecma::visit::VisitMut;
 
 /// 文件名转换规则
@@ -64,10 +67,10 @@ impl PluginConfig {
             // 检查 include 和 exclude 不能同时存在
             if config.include.is_some() && config.exclude.is_some() {
                 return Err(format!(
-                    "配置 #{} (source: '{}'): include 和 exclude 不能同时配置。\n\
-                    请选择其中一个：\n\
-                    - 使用 include 指定要处理的组件（白名单）\n\
-                    - 使用 exclude 指定要排除的组件（黑名单）",
+                    "Config #{} (source: '{}'): 'include' and 'exclude' cannot be used together.\n\
+                    Please choose one:\n\
+                    - Use 'include' to specify components to process (whitelist)\n\
+                    - Use 'exclude' to specify components to skip (blacklist)",
                     index, config.source
                 ));
             }
@@ -124,8 +127,15 @@ impl ImportTransformer {
     }
 
     /// 为给定的组件名称和配置生成导入声明
-    fn generate_imports(&self, local_name: &str, config: &TransformConfig) -> Vec<ModuleItem> {
-        let transformed_filename = transform_filename(local_name, &config.filename);
+    /// imported_name: 原始导入名称（用于生成文件名和匹配 include/exclude）
+    /// local_name: 本地变量名（用于生成导入语句中的变量名）
+    fn generate_imports(
+        &self,
+        imported_name: &str,
+        local_name: &str,
+        config: &TransformConfig,
+    ) -> Vec<ModuleItem> {
+        let transformed_filename = transform_filename(imported_name, &config.filename);
         let mut imports = Vec::new();
 
         for (index, output_template) in config.output.iter().enumerate() {
@@ -241,15 +251,34 @@ impl VisitMut for ImportTransformer {
                         for specifier in import_decl.specifiers {
                             match specifier {
                                 ImportSpecifier::Named(named) => {
-                                    let local_name = named.local.sym.as_str().to_string();
+                                    // 获取原始导入名称（用于匹配 include/exclude 和生成文件名）
+                                    let imported_name = match &named.imported {
+                                        Some(module_export_name) => match module_export_name {
+                                            ModuleExportName::Ident(ident) => {
+                                                ident.sym.as_ref().to_string()
+                                            }
+                                            ModuleExportName::Str(s) => {
+                                                s.value.as_str().unwrap_or_default().to_string()
+                                            }
+                                        },
+                                        None => named.local.sym.as_ref().to_string(),
+                                    };
+                                    // 本地变量名（用于生成导入语句）
+                                    let local_name = named.local.sym.as_ref().to_string();
+
+                                    // 跳过 type-only 导入
+                                    if named.is_type_only {
+                                        unprocessed_specifiers.push(ImportSpecifier::Named(named));
+                                        continue;
+                                    }
 
                                     // 尝试每个配置，找到第一个匹配的
                                     let mut matched = false;
                                     for config in &matched_configs {
-                                        if config.matches(&local_name) {
+                                        if config.matches(&imported_name) {
                                             // 生成转换后的导入
                                             let generated_imports =
-                                                self.generate_imports(&local_name, config);
+                                                self.generate_imports(&imported_name, &local_name, config);
                                             new_items.extend(generated_imports);
                                             matched = true;
                                             break; // 找到匹配的配置后停止
@@ -257,11 +286,8 @@ impl VisitMut for ImportTransformer {
                                     }
 
                                     if !matched {
-                                        // 没有任何配置匹配这个组件
-                                        // 根据需求，如果所有配置都不匹配（都exclude了），则不生成任何导入
-                                        // 只有当完全没有配置处理这个source时，才保留原导入
-                                        // 因为我们已经在 matched_configs 中有配置了，所以这里不保留
-                                        // unprocessed_specifiers.push(ImportSpecifier::Named(named));
+                                        // 没有任何配置匹配这个组件，保留原始导入
+                                        unprocessed_specifiers.push(ImportSpecifier::Named(named));
                                     }
                                 }
                                 // 保留默认导入和命名空间导入
@@ -395,7 +421,7 @@ mod tests {
 
         let result = config.validate();
         assert!(result.is_err());
-        assert!(result.unwrap_err().contains("include 和 exclude 不能同时配置"));
+        assert!(result.unwrap_err().contains("'include' and 'exclude' cannot be used together"));
     }
 
     #[test]
@@ -512,6 +538,7 @@ import "antd/css/button.css";
         r#"import { Button, DatePicker } from "antd";"#,
         r#"
 import DatePicker from "antd/es/date-picker.js";
+import { Button } from "antd";
     "#
     );
 

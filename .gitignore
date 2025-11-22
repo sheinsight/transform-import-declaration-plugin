@@ -2,3 +2,5 @@ packages/swc/target
 node_modules
 target
 *.wasm
+e2e-tests/.swc
+.swc

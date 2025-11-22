@@ -217,7 +217,7 @@ describe('Babel Plugin - Config Validation', () => {
     };
 
     expect(() => transformCode(input, config)).toThrow(
-      'include 和 exclude 不能同时配置'
+      "'include' and 'exclude' cannot be used together"
     );
   });
 });

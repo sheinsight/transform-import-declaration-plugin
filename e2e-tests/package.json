@@ -12,7 +12,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.28.5",
-    "@swc/core": "^1.10.7",
+    "@shined/babel-plugin-transform-import-declaration": "workspace:*",
+    "@shined/swc-plugin-transform-import-declaration": "workspace:*",
+    "@swc/core": "1.14.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.12"
   }

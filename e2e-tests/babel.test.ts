@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { transform } from '@babel/core';
-import babelPlugin from '../packages/babel/src/index';
+import babelPlugin from '@shined/babel-plugin-transform-import-declaration';
 import { testCases, validationTestCases } from './test-cases';
 
 /**

@@ -81,7 +81,7 @@ describe('validateConfig', () => {
     ];
 
     expect(() => validateConfig(configs)).toThrow(
-      'include 和 exclude 不能同时配置'
+      "'include' and 'exclude' cannot be used together"
     );
   });
 

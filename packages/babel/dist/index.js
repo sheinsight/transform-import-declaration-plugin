@@ -62,10 +62,10 @@ function validateConfig(configs) {
   configs.forEach((config, index) => {
     if (config.include && config.exclude) {
       throw new Error(
-        `\u914D\u7F6E #${index} (source: '${config.source}'): include \u548C exclude \u4E0D\u80FD\u540C\u65F6\u914D\u7F6E\u3002
-\u8BF7\u9009\u62E9\u5176\u4E2D\u4E00\u4E2A\uFF1A
-- \u4F7F\u7528 include \u6307\u5B9A\u8981\u5904\u7406\u7684\u7EC4\u4EF6\uFF08\u767D\u540D\u5355\uFF09
-- \u4F7F\u7528 exclude \u6307\u5B9A\u8981\u6392\u9664\u7684\u7EC4\u4EF6\uFF08\u9ED1\u540D\u5355\uFF09`
+        `Config #${index} (source: '${config.source}'): 'include' and 'exclude' cannot be used together.
+Please choose one:
+- Use 'include' to specify components to process (whitelist)
+- Use 'exclude' to specify components to skip (blacklist)`
       );
     }
   });
