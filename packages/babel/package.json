@@ -2,16 +2,8 @@
   "name": "@shined/babel-plugin-transform-import-declaration",
   "version": "0.0.4",
   "description": "A Babel plugin to transform import declarations for tree-shaking and on-demand loading",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
-    }
-  },
+  "main": "./cjs/index.js",
+  "types": "./cjs/index.d.ts",
   "files": [
     "dist"
   ],
@@ -38,9 +30,8 @@
     "tag": "latest"
   },
   "scripts": {
-    "build": "tsup",
-    "build:lecp": "lecp",
-    "dev": "tsup --watch",
+    "build": "lecp",
+    "dev": "lecp --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "clean": "rm -rf dist node_modules",
@@ -52,7 +43,6 @@
     "@babel/types": "^7.28.5",
     "@shined/lecp": "^0.1.1",
     "@types/babel__core": "^7.20.5",
-    "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "clean-pkg-json": "^1.3.0",
     "vitest": "^4.0.12"

@@ -23,7 +23,7 @@ var _changecase = require("change-case");
 function transformFilename(name, caseType) {
     switch(caseType){
         case 'kebabCase':
-            return (0, _changecase.kebabCase)(name);
+            return (0, _changecase.paramCase)(name);
         case 'camelCase':
             return (0, _changecase.camelCase)(name);
         case 'snakeCase':
@@ -47,7 +47,7 @@ function configMatches(config, name) {
 function validateConfig(configs) {
     configs.forEach(function(config, index) {
         if (config.include && config.exclude) {
-            throw new Error("配置 #".concat(index, " (source: '").concat(config.source, "'): include 和 exclude 不能同时配置。\n") + "请选择其中一个：\n" + "- 使用 include 指定要处理的组件（白名单）\n" + "- 使用 exclude 指定要排除的组件（黑名单）");
+            throw new Error("Config #".concat(index, " (source: '").concat(config.source, "'): 'include' and 'exclude' cannot be used together.\n") + "Please choose one:\n" + "- Use 'include' to specify components to process (whitelist)\n" + "- Use 'exclude' to specify components to skip (blacklist)");
         }
     });
 }
