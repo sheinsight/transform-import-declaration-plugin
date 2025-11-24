@@ -1,162 +1,226 @@
 # Transform Import Declaration Plugin
 
-一个用于转换 JavaScript/TypeScript 模块导入声明的插件，支持将命名导入转换为指定格式的导入语句，并自动添加相关的样式文件导入。
+一个用于转换 JavaScript/TypeScript 模块导入声明的插件,支持将命名导入转换为指定格式的导入语句,实现按需加载和 Tree Shaking,有效减小打包体积。
 
-**提供两个版本：**
-- 🔷 **Babel 插件** - TypeScript 实现，适用于 Babel 生态
-- 🦀 **SWC 插件** - Rust 实现，更快的性能
+**提供两个版本:**
+- 🔷 **Babel 插件** - TypeScript 实现,适用于 Babel 生态
+- 🦀 **SWC 插件** - Rust 实现,更快的性能
 
-## 项目结构
+## 特性
 
-这是一个 **pnpm monorepo** 项目：
-
-```
-transform-import-declaration-plugin/
-├── packages/
-│   ├── babel/          # Babel 插件 (TypeScript)
-│   └── swc/            # SWC 插件 (Rust)
-├── e2e-tests/          # 统一的 E2E 测试
-└── MONOREPO.md         # Monorepo 使用文档
-```
+- ✅ **按需加载** - 只导入使用到的组件,减小打包体积
+- ✅ **样式自动导入** - 自动导入组件对应的样式文件
+- ✅ **灵活的命名转换** - 支持 4 种文件名转换规则(kebab-case、camelCase、snake_case、PascalCase)
+- ✅ **多种导入方式** - 支持 default、named、namespace 三种导入说明符
+- ✅ **精细化控制** - 支持 include/exclude 过滤特定组件
+- ✅ **多规则配置** - 同时配置多个转换规则
+- ✅ **高性能** - SWC 版本使用 Rust 编写,编译速度更快
 
 ## 快速开始
 
-### 开发者
+### 安装
 
-```bash
-# 安装依赖
-pnpm install
-
-# 运行所有测试
-pnpm test
-
-# 构建所有包
-pnpm build
-```
-
-详见 [MONOREPO.md](./MONOREPO.md)
-
-### 用户
-
-#### Babel 插件
+#### 选择 Babel 插件
 
 ```bash
 npm install @shined/babel-plugin-transform-import-declaration --save-dev
+# 或
+pnpm add -D @shined/babel-plugin-transform-import-declaration
+# 或
+yarn add -D @shined/babel-plugin-transform-import-declaration
 ```
 
-详见 [packages/babel/README.md](./packages/babel/README.md)
-
-#### SWC 插件
-
-详见 [packages/swc/README.md](./packages/swc/README.md)
-
-## 测试
+#### 选择 SWC 插件
 
 ```bash
-# 运行所有测试（单元测试 + E2E 测试）
-pnpm test
-
-# 只运行单元测试
-pnpm test:unit
-
-# 只运行 E2E 测试
-pnpm test:e2e
+npm install @shined/swc-plugin-transform-import-declaration --save-dev
+# 或
+pnpm add -D @shined/swc-plugin-transform-import-declaration
+# 或
+yarn add -D @shined/swc-plugin-transform-import-declaration
 ```
 
-**测试结果**：
-- ✅ Babel 单元测试：22/22 通过
-- ✅ SWC 单元测试：20/20 通过
-- ✅ E2E 测试（Babel）：29/29 通过
-- ⏳ E2E 测试（SWC）：待编译 WASM
+### 配置
 
-详见 [E2E-TESTING.md](./E2E-TESTING.md)
+#### Babel 配置
 
-## 统一命令
+在 `.babelrc` 或 `babel.config.js` 中配置:
 
-| 命令 | 说明 |
-|------|------|
-| `pnpm install` | 安装所有依赖 |
-| `pnpm build` | 构建所有包 |
-| `pnpm test` | 运行所有测试 |
-| `pnpm test:unit` | 运行单元测试 |
-| `pnpm test:e2e` | 运行 E2E 测试 |
-| `pnpm test:babel` | 只测试 Babel 版本 |
-| `pnpm test:swc` | 只测试 SWC 版本 |
-| `pnpm dev` | 所有包进入开发模式 |
-| `pnpm clean` | 清理所有构建产物 |
+```json
+{
+  "plugins": [
+    [
+      "@shined/babel-plugin-transform-import-declaration",
+      {
+        "config": [
+          {
+            "source": "antd",
+            "filename": "kebabCase",
+            "output": ["antd/es/{{ filename }}"]
+          }
+        ]
+      }
+    ]
+  ]
+}
+```
 
-## 功能示例
+#### SWC 配置
+
+在 `.swcrc` 中配置:
+
+```json
+{
+  "jsc": {
+    "experimental": {
+      "plugins": [
+        [
+          "@shined/swc-plugin-transform-import-declaration",
+          {
+            "config": [
+              {
+                "source": "antd",
+                "filename": "kebabCase",
+                "output": ["antd/es/{{ filename }}"]
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  }
+}
+```
+
+#### 在 Rspack/Webpack 中使用 SWC 插件
+
+```js
+// rspack.config.js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: {
+          loader: 'builtin:swc-loader',
+          options: {
+            jsc: {
+              experimental: {
+                plugins: [
+                  [
+                    '@shined/swc-plugin-transform-import-declaration',
+                    {
+                      config: [
+                        {
+                          source: 'antd',
+                          filename: 'kebabCase',
+                          output: ['antd/es/{{ filename }}']
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+};
+```
+
+### 基础示例
+
+**输入代码:**
+
+```javascript
+import { Button, DatePicker } from 'antd';
+```
+
+**转换后:**
+
+```javascript
+import Button from 'antd/es/button';
+import DatePicker from 'antd/es/date-picker';
+```
 
 ## 配置选项
 
-### 必需配置
+### TransformConfig
 
-| 配置项 | 类型 | 说明 |
-|--------|------|------|
-| `source` | `string` | 源模块名称，如 `"antd"` |
-| `filename` | `"kebabCase"` \| `"camelCase"` \| `"snakeCase"` \| `"pascalCase"` | 文件名转换规则 |
-| `output` | `string[]` | 输出路径模板数组，第一个为主导入，其余为副作用导入 |
+| 配置项 | 类型 | 必填 | 默认值 | 说明 |
+|--------|------|------|--------|------|
+| `source` | `string` | 是 | - | 要转换的源模块名称 |
+| `filename` | `FilenameCase` | 是 | - | 文件名转换规则 |
+| `output` | `string[]` | 是 | - | 输出路径模板数组,使用 `{{ filename }}` 作为占位符 |
+| `specifier` | `SpecifierType` | 否 | `"default"` | 导入说明符类型 |
+| `include` | `string[]` | 否 | - | 只处理指定的组件名称(白名单) |
+| `exclude` | `string[]` | 否 | - | 排除指定的组件名称(黑名单) |
 
-### 可选配置
+**注意:** `include` 和 `exclude` 互斥,不能同时使用。
 
-| 配置项 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
-| `specifier` | `"default"` \| `"named"` \| `"namespace"` | `"default"` | 导入说明符类型 |
-| `include` | `string[]` | - | 只处理指定的组件名称 |
-| `exclude` | `string[]` | - | 排除指定的组件名称 |
+### FilenameCase - 文件名转换规则
 
-### 文件名转换规则
+| 值 | 说明 | 转换示例 |
+|-------|------|---------|
+| `kebabCase` | 小写字母,用连字符分隔 | `Button` → `button`, `DatePicker` → `date-picker` |
+| `camelCase` | 驼峰命名,首字母小写 | `Button` → `button`, `DatePicker` → `datePicker` |
+| `snakeCase` | 小写字母,用下划线分隔 | `Button` → `button`, `DatePicker` → `date_picker` |
+| `pascalCase` | 帕斯卡命名,首字母大写 | `Button` → `Button`, `DatePicker` → `DatePicker` |
 
-| 规则 | 示例 |
-|------|------|
-| `kebabCase` | `Button` → `button`，`DatePicker` → `date-picker` |
-| `camelCase` | `Button` → `button`，`DatePicker` → `datePicker` |
-| `snakeCase` | `Button` → `button`，`DatePicker` → `date_picker` |
-| `pascalCase` | `Button` → `Button`，`DatePicker` → `DatePicker` |
+### SpecifierType - 导入说明符类型
 
----
+| 值 | 生成的导入语句 | 使用场景 |
+|-------|------------------|----------|
+| `default` | `import Button from "path"` | 模块使用 `export default` 导出 |
+| `named` | `import { Button } from "path"` | 模块使用 `export { Button }` 导出 |
+| `namespace` | `import * as Button from "path"` | 导入整个模块作为对象 |
 
 ## 使用示例
 
 ### Example 1 - 基础转换
 
-最简单的用法，将命名导入转换为默认导入。
+最简单的用法,将命名导入转换为默认导入。
 
-```js
-// config.js
-let config = [{
-  filename: "kebabCase",
-  source: "antd",
-  output: ["antd/es/{{ filename }}.js"],
-}]
+```javascript
+// 配置
+{
+  "source": "antd",
+  "filename": "kebabCase",
+  "output": ["antd/es/{{ filename }}"]
+}
 
 // 转换前
 import { Button } from "antd";
 
 // 转换后 👇
-import Button from "antd/es/button.js";
+import Button from "antd/es/button";
 ```
 
 ---
 
 ### Example 2 - 导入样式文件
 
-除了组件，还可以自动导入对应的样式文件。
+除了组件,还可以自动导入对应的样式文件。
 
-```js
-// config.js
-let config = [{
-  filename: "kebabCase",
-  source: "antd",
-  output: ["antd/es/{{ filename }}.js", "antd/css/{{ filename }}.css"],
-}]
+```javascript
+// 配置
+{
+  "source": "antd",
+  "filename": "kebabCase",
+  "output": [
+    "antd/es/{{ filename }}",
+    "antd/es/{{ filename }}/style/css"
+  ]
+}
 
 // 转换前
 import { Button } from "antd";
 
 // 转换后 👇
-import Button from "antd/es/button.js";
-import "antd/css/button.css";
+import Button from "antd/es/button";
+import "antd/es/button/style/css";
 ```
 
 ---
@@ -165,117 +229,184 @@ import "antd/css/button.css";
 
 使用 `exclude` 排除不需要转换的组件。
 
-```js
-// config.js
-let config = [{
-  filename: "kebabCase",
-  source: "antd",
-  exclude: ["Button"],
-  output: ["antd/es/{{ filename }}.js", "antd/css/{{ filename }}.css"],
-}]
+```javascript
+// 配置
+{
+  "source": "antd",
+  "filename": "kebabCase",
+  "output": [
+    "antd/es/{{ filename }}",
+    "antd/es/{{ filename }}/style/css"
+  ],
+  "exclude": ["Button"]
+}
 
 // 转换前
 import { Button, DatePicker } from "antd";
 
 // 转换后 👇
-// Button 被排除，不会生成导入语句
-import DatePicker from "antd/es/date-picker.js";
-import "antd/css/date-picker.css";
+import { Button } from "antd";  // Button 被排除,保持原样
+import DatePicker from "antd/es/date-picker";
+import "antd/es/date-picker/style/css";
 ```
 
 ---
 
-### Example 4 - 多规则配置
+### Example 4 - 只处理指定组件
+
+使用 `include` 只处理指定的组件。
+
+```javascript
+// 配置
+{
+  "source": "antd",
+  "filename": "kebabCase",
+  "output": ["antd/es/{{ filename }}"],
+  "include": ["Button", "Input"]
+}
+
+// 转换前
+import { Button, DatePicker, Input } from "antd";
+
+// 转换后 👇
+import Button from "antd/es/button";
+import Input from "antd/es/input";
+import { DatePicker } from "antd";  // DatePicker 不在 include 中,保持原样
+```
+
+---
+
+### Example 5 - 多规则配置
 
 不同的组件可以使用不同的转换规则。
 
-```js
-// config.js
-let config = [
+```javascript
+// 配置
+[
   {
-    filename: "kebabCase",
-    source: "antd",
-    exclude: ["Button"],
-    output: ["antd/es/{{ filename }}.js", "antd/css/{{ filename }}.css"],
+    "source": "antd",
+    "filename": "kebabCase",
+    "output": [
+      "antd/es/{{ filename }}",
+      "antd/es/{{ filename }}/style/css"
+    ],
+    "exclude": ["Button"]
   },
   {
-    filename: "kebabCase",
-    source: "antd",
-    include: ["Button"],
-    output: ["antd/es/{{ filename }}.js", "antd/css/{{ filename }}.png"],
-  },
+    "source": "antd",
+    "filename": "kebabCase",
+    "output": [
+      "antd/es/{{ filename }}",
+      "antd/es/{{ filename }}/style/less"
+    ],
+    "include": ["Button"]
+  }
 ]
 
 // 转换前
 import { Button, DatePicker } from "antd";
 
 // 转换后 👇
-import DatePicker from "antd/es/date-picker.js";
-import "antd/css/date-picker.css";
-import Button from "antd/es/button.js";
-import "antd/css/button.png";
+import DatePicker from "antd/es/date-picker";
+import "antd/es/date-picker/style/css";  // 使用第一个规则,导入 CSS
+import Button from "antd/es/button";
+import "antd/es/button/style/less";      // 使用第二个规则,导入 LESS
 ```
 
 ---
 
-### Example 5 - 不同的导入说明符
+### Example 6 - 不同的导入说明符
 
 使用 `specifier` 配置生成不同类型的导入语句。
 
-#### 默认导入（default）
+#### 默认导入(default)
 
-```js
-// config.js
-let config = [{
-  filename: "kebabCase",
-  source: "antd",
-  specifier: "default", // 默认值，可省略
-  output: ["antd/es/{{ filename }}.js"],
-}]
+```javascript
+// 配置
+{
+  "source": "antd",
+  "filename": "kebabCase",
+  "specifier": "default",  // 默认值,可省略
+  "output": ["antd/es/{{ filename }}"]
+}
 
 // 转换前
 import { Button } from "antd";
 
 // 转换后 👇
-import Button from "antd/es/button.js";
+import Button from "antd/es/button";
 ```
 
-#### 命名导入（named）
+#### 命名导入(named)
 
-```js
-// config.js
-let config = [{
-  filename: "kebabCase",
-  source: "lodash",
-  specifier: "named",
-  output: ["lodash/{{ filename }}.js"],
-}]
+```javascript
+// 配置
+{
+  "source": "lodash",
+  "filename": "kebabCase",
+  "specifier": "named",
+  "output": ["lodash/{{ filename }}"]
+}
 
 // 转换前
 import { debounce, throttle } from "lodash";
 
 // 转换后 👇
-import { debounce } from "lodash/debounce.js";
-import { throttle } from "lodash/throttle.js";
+import { debounce } from "lodash/debounce";
+import { throttle } from "lodash/throttle";
 ```
 
-#### 命名空间导入（namespace）
+#### 命名空间导入(namespace)
 
-```js
-// config.js
-let config = [{
-  filename: "camelCase",
-  source: "utils",
-  specifier: "namespace",
-  output: ["utils/{{ filename }}.js"],
-}]
+```javascript
+// 配置
+{
+  "source": "utils",
+  "filename": "camelCase",
+  "specifier": "namespace",
+  "output": ["utils/{{ filename }}"]
+}
 
 // 转换前
 import { DateUtils, StringUtils } from "utils";
 
 // 转换后 👇
-import * as DateUtils from "utils/dateUtils.js";
-import * as StringUtils from "utils/stringUtils.js";
+import * as DateUtils from "utils/dateUtils";
+import * as StringUtils from "utils/stringUtils";
+```
+
+---
+
+### Example 7 - 不同的文件名转换规则
+
+```javascript
+// kebabCase - 推荐用于大多数情况
+{
+  "filename": "kebabCase",
+  "output": ["lib/{{ filename }}"]
+}
+// DatePicker → lib/date-picker
+
+// camelCase - 适用于驼峰命名的文件系统
+{
+  "filename": "camelCase",
+  "output": ["lib/{{ filename }}"]
+}
+// DatePicker → lib/datePicker
+
+// snakeCase - 适用于使用下划线的项目
+{
+  "filename": "snakeCase",
+  "output": ["lib/{{ filename }}"]
+}
+// DatePicker → lib/date_picker
+
+// pascalCase - 保持原始大小写
+{
+  "filename": "pascalCase",
+  "output": ["lib/{{ filename }}"]
+}
+// DatePicker → lib/DatePicker
 ```
 
 ---
@@ -284,17 +415,61 @@ import * as StringUtils from "utils/stringUtils.js";
 
 ### Ant Design 按需加载
 
-```javascript
-// 配置
+**Babel 配置:**
+
+```json
 {
-  source: "antd",
-  filename: "kebabCase",
-  output: [
-    "antd/es/{{ filename }}",
-    "antd/es/{{ filename }}/style/css"
+  "plugins": [
+    [
+      "@shined/babel-plugin-transform-import-declaration",
+      {
+        "config": [
+          {
+            "source": "antd",
+            "filename": "kebabCase",
+            "output": [
+              "antd/es/{{ filename }}",
+              "antd/es/{{ filename }}/style/css"
+            ]
+          }
+        ]
+      }
+    ]
   ]
 }
+```
 
+**SWC 配置:**
+
+```json
+{
+  "jsc": {
+    "experimental": {
+      "plugins": [
+        [
+          "@shined/swc-plugin-transform-import-declaration",
+          {
+            "config": [
+              {
+                "source": "antd",
+                "filename": "kebabCase",
+                "output": [
+                  "antd/es/{{ filename }}",
+                  "antd/es/{{ filename }}/style/css"
+                ]
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  }
+}
+```
+
+**效果:**
+
+```javascript
 // 开发时写法
 import { Button, Table, Form } from 'antd';
 
@@ -307,17 +482,24 @@ import Form from 'antd/es/form';
 import 'antd/es/form/style/css';
 ```
 
+---
+
 ### Lodash 按需导入
 
-```javascript
-// 配置
-{
-  source: "lodash",
-  filename: "camelCase",
-  specifier: "default",
-  output: ["lodash/{{ filename }}"]
-}
+**配置(两种插件相同):**
 
+```json
+{
+  "source": "lodash",
+  "filename": "camelCase",
+  "specifier": "default",
+  "output": ["lodash/{{ filename }}"]
+}
+```
+
+**效果:**
+
+```javascript
 // 开发时写法
 import { debounce, throttle, cloneDeep } from 'lodash';
 
@@ -327,19 +509,26 @@ import throttle from 'lodash/throttle';
 import cloneDeep from 'lodash/cloneDeep';
 ```
 
+---
+
 ### Element Plus 按需加载
 
-```javascript
-// 配置
+**配置(两种插件相同):**
+
+```json
 {
-  source: "element-plus",
-  filename: "kebabCase",
-  output: [
+  "source": "element-plus",
+  "filename": "kebabCase",
+  "output": [
     "element-plus/es/components/{{ filename }}",
     "element-plus/es/components/{{ filename }}/style/css"
   ]
 }
+```
 
+**效果:**
+
+```javascript
 // 开发时写法
 import { ElButton, ElTable } from 'element-plus';
 
@@ -352,12 +541,201 @@ import 'element-plus/es/components/el-table/style/css';
 
 ---
 
-## 为什么使用这个插件？
+## TypeScript 支持
 
-1. **减小打包体积** - 只导入使用到的组件，Tree Shaking 更有效
-2. **提升构建性能** - 减少不必要的模块解析和打包
-3. **开发体验好** - 保持简洁的导入语法，自动转换为优化后的代码
-4. **灵活配置** - 支持多种转换规则和导入方式
+两个插件都完全支持 TypeScript,会自动跳过类型导入:
+
+```typescript
+// 这些不会被转换
+import type { ButtonProps } from 'antd';
+import { type InputProps, Button } from 'antd';
+
+// 只有 Button 会被转换
+```
+
+---
+
+## Babel 插件 vs SWC 插件
+
+### 功能对比
+
+| 特性 | Babel 插件 | SWC 插件 |
+|------|-----------|----------|
+| 配置格式 | ✅ 完全相同 | ✅ 完全相同 |
+| 转换规则 | ✅ 完全相同 | ✅ 完全相同 |
+| TypeScript 支持 | ✅ | ✅ |
+| 实现语言 | TypeScript | Rust |
+| 编译速度 | 较慢 | ⚡ 极快 |
+| 适用场景 | 现有 Babel 项目 | 新项目或性能敏感项目 |
+| 生态系统 | Babel | SWC/Rspack/Webpack |
+
+### 如何选择?
+
+**选择 Babel 插件如果:**
+- 项目已经使用 Babel
+- 需要与其他 Babel 插件配合使用
+- 项目规模较小,构建速度不是瓶颈
+
+**选择 SWC 插件如果:**
+- 追求极致的编译性能
+- 使用 Rspack、Webpack 或原生 SWC
+- 项目规模较大,需要优化构建时间
+- 正在启动新项目
+
+---
+
+## 为什么使用这个插件?
+
+### 1. 减小打包体积
+
+**不使用插件时:**
+
+```javascript
+import { Button } from 'antd';  // 导入整个 antd 库
+```
+
+打包后可能包含所有组件代码(~2MB+)
+
+**使用插件后:**
+
+```javascript
+import Button from 'antd/es/button';  // 只导入 Button 组件
+```
+
+打包后只包含 Button 相关代码(~50KB)
+
+### 2. 提升构建性能
+
+- 减少模块解析时间
+- 减少打包处理的代码量
+- 更好的 Tree Shaking 效果
+
+### 3. 开发体验好
+
+- 保持简洁的导入语法
+- 自动处理样式导入
+- 无需手动维护导入路径
+
+### 4. 灵活配置
+
+- 支持多种命名转换规则
+- 支持多种导入方式
+- 精细化的组件过滤
+
+---
+
+## 常见问题
+
+### Q: Babel 和 SWC 插件的配置格式是否相同?
+
+**A:** 是的,完全相同。你可以直接复制配置,在两种插件之间切换。
+
+### Q: 可以同时使用 include 和 exclude 吗?
+
+**A:** 不可以,`include` 和 `exclude` 是互斥的,只能使用其中一个。
+
+### Q: 如何处理样式导入?
+
+**A:** 在 `output` 数组中添加多个路径模板,第一个是组件路径,后续的会生成副作用导入(样式):
+
+```json
+{
+  "output": [
+    "antd/es/{{ filename }}",           // 主导入
+    "antd/es/{{ filename }}/style/css"  // 样式导入
+  ]
+}
+```
+
+### Q: 支持别名(alias)路径吗?
+
+**A:** 支持。插件只关心 `source` 字段匹配,之后的路径转换由你的构建工具(Webpack/Rspack)的别名配置处理。
+
+### Q: TypeScript 类型导入会被转换吗?
+
+**A:** 不会。插件会自动识别并跳过类型导入(`import type` 或 `type` 关键字)。
+
+### Q: 性能差异有多大?
+
+**A:** 在大型项目中,SWC 插件的编译速度可以比 Babel 插件快 20-70 倍,具体取决于项目规模。
+
+---
+
+## 开发者文档
+
+如果你想为这个项目贡献代码,请参考:
+
+- [MONOREPO.md](./MONOREPO.md) - Monorepo 项目结构和开发指南
+- [packages/babel/README.md](./packages/babel/README.md) - Babel 插件详细文档
+- [packages/swc/README.md](./packages/swc/README.md) - SWC 插件详细文档
+- [E2E-TESTING.md](./E2E-TESTING.md) - E2E 测试文档
+
+### 项目结构
+
+这是一个 **pnpm monorepo** 项目:
+
+```
+transform-import-declaration-plugin/
+├── packages/
+│   ├── babel/          # Babel 插件 (TypeScript)
+│   └── swc/            # SWC 插件 (Rust)
+├── e2e-tests/          # 统一的 E2E 测试
+└── MONOREPO.md         # Monorepo 使用文档
+```
+
+### 快速开始
+
+```bash
+# 安装依赖
+pnpm install
+
+# 构建所有包
+pnpm build
+
+# 运行所有测试
+pnpm test
+
+# 运行单元测试
+pnpm test:unit
+
+# 运行 E2E 测试
+pnpm test:e2e
+
+# 只测试 Babel
+pnpm test:babel
+
+# 只测试 SWC
+pnpm test:swc
+
+# 开发模式(监听文件变化)
+pnpm dev
+
+# 清理构建产物
+pnpm clean
+```
+
+### 测试状态
+
+- ✅ Babel 单元测试: 22/22 通过
+- ✅ SWC 单元测试: 20/20 通过
+- ✅ E2E 测试(Babel): 29/29 通过
+- ⏳ E2E 测试(SWC): 待编译 WASM
+
+---
+
+## 兼容性
+
+### Babel 插件
+
+- **Babel**: >= 7.0.0
+- **Node.js**: >= 14.0.0
+
+### SWC 插件
+
+- **SWC**: Core library
+- **Node.js**: >= 14.0.0
+- **Rspack**: 兼容 rspack 的 SWC loader
+- **Webpack**: 兼容 swc-loader
 
 ---
 
@@ -367,6 +745,24 @@ MIT
 
 ---
 
-## 更多信息
+## 作者
 
-查看 [REQUIREMENTS.md](./REQUIREMENTS.md) 了解详细的需求文档和技术实现细节。
+ityuany
+
+---
+
+## 相关链接
+
+- **NPM Packages:**
+  - [@shined/babel-plugin-transform-import-declaration](https://www.npmjs.com/package/@shined/babel-plugin-transform-import-declaration)
+  - [@shined/swc-plugin-transform-import-declaration](https://www.npmjs.com/package/@shined/swc-plugin-transform-import-declaration)
+
+- **GitHub Repository:** [transform-import-declaration-plugin](https://github.com/ityuany/transform-import-declaration-plugin)
+
+---
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request!
+
+如果这个项目对你有帮助,请给个 ⭐ Star 支持一下!
