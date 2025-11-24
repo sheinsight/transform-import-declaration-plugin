@@ -152,13 +152,15 @@ import DatePicker from 'antd/es/date-picker/index.js';
 | 配置项 | 类型 | 必填 | 默认值 | 说明 |
 |--------|------|------|--------|------|
 | `source` | `string` | 是 | - | 要转换的源模块名称 |
-| `filename` | `FilenameCase` | 是 | - | 文件名转换规则 |
+| `filename` | `FilenameCase` | 否 | `"camelCase"` | 文件名转换规则 |
 | `output` | `string[]` | 是 | - | 输出路径模板数组。**第一个元素生成主导入**(带标识符),**后续元素生成副作用导入**(如样式文件) |
 | `specifier` | `SpecifierType` | 否 | `"default"` | 导入说明符类型 |
 | `include` | `string[]` | 否 | - | 只处理指定的组件名称(白名单) |
 | `exclude` | `string[]` | 否 | - | 排除指定的组件名称(黑名单) |
 
-**注意:** `include` 和 `exclude` 互斥,不能同时使用。
+**注意:**
+- `filename` 默认为 `camelCase`,如果不指定会将 `DatePicker` 转换为 `datePicker`
+- `include` 和 `exclude` 互斥,不能同时使用
 
 ### Output - 输出路径规则
 
