@@ -537,6 +537,36 @@ import { type InputProps, Button } from 'antd';
 
 ## 常见问题
 
+### Q: output 数组可以为空吗?
+
+**A:** ⚠️ **不可以!** `output` 数组**必须至少包含一个元素**,否则插件会在启动时抛出错误。
+
+**❌ 错误配置:**
+```json
+{
+  "source": "antd",
+  "filename": "kebabCase",
+  "output": []  // ❌ 空数组会导致错误!
+}
+```
+
+**错误信息:**
+```
+Config #0 (source: 'antd'): 'output' must be a non-empty array.
+The 'output' array defines the import paths to generate:
+- First element: main import (with identifier)
+- Remaining elements: side-effect imports (e.g., styles)
+```
+
+**✅ 正确配置:**
+```json
+{
+  "source": "antd",
+  "filename": "kebabCase",
+  "output": ["antd/es/{{ filename }}/index.js"]  // ✅ 至少一个元素
+}
+```
+
 ### Q: output 数组的顺序有什么要求?
 
 **A:** ⚠️ **非常重要!** `output` 数组的顺序决定了生成的导入类型:
