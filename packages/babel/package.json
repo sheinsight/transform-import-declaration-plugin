@@ -1,6 +1,6 @@
 {
   "name": "@shined/babel-plugin-transform-import-declaration",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A Babel plugin to transform import declarations for tree-shaking and on-demand loading",
   "main": "./cjs/index.js",
   "types": "./cjs/index.d.ts",
@@ -19,7 +19,8 @@
   "author": "ityuany",
   "license": "MIT",
   "peerDependencies": {
-    "@babel/core": "^7.0.0"
+    "@babel/core": "^7.0.0",
+    "@babel/types": "^7.0.0"
   },
   "dependencies": {
     "change-case": "4.1.2"

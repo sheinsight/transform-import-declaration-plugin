@@ -1,6 +1,6 @@
 {
   "name": "@shined/swc-plugin-transform-import-declaration",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "SWC plugin for transforming import declarations",
   "author": "ityuany",
   "license": "MIT",
