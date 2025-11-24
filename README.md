@@ -153,12 +153,52 @@ import DatePicker from 'antd/es/date-picker';
 |--------|------|------|--------|------|
 | `source` | `string` | 是 | - | 要转换的源模块名称 |
 | `filename` | `FilenameCase` | 是 | - | 文件名转换规则 |
-| `output` | `string[]` | 是 | - | 输出路径模板数组,使用 `{{ filename }}` 作为占位符 |
+| `output` | `string[]` | 是 | - | 输出路径模板数组。**第一个元素生成主导入**(带标识符),**后续元素生成副作用导入**(如样式文件) |
 | `specifier` | `SpecifierType` | 否 | `"default"` | 导入说明符类型 |
 | `include` | `string[]` | 否 | - | 只处理指定的组件名称(白名单) |
 | `exclude` | `string[]` | 否 | - | 排除指定的组件名称(黑名单) |
 
 **注意:** `include` 和 `exclude` 互斥,不能同时使用。
+
+### Output - 输出路径规则
+
+`output` 是一个字符串数组,用于定义生成的导入语句:
+
+- **第一个元素(必需)**: 生成**主导入**语句,包含导入标识符
+  ```javascript
+  // output[0]: "antd/es/{{ filename }}"
+  import Button from "antd/es/button";  // 带标识符 Button
+  ```
+
+- **后续元素(可选)**: 生成**副作用导入**语句,不包含标识符,通常用于导入样式文件
+  ```javascript
+  // output[1]: "antd/es/{{ filename }}/style/css"
+  import "antd/es/button/style/css";  // 无标识符,仅导入副作用
+  ```
+
+**示例:**
+
+```json
+{
+  "output": [
+    "antd/es/{{ filename }}",           // 主导入
+    "antd/es/{{ filename }}/style/css", // 副作用导入 1
+    "antd/css/{{ filename }}.png"       // 副作用导入 2
+  ]
+}
+```
+
+转换结果:
+
+```javascript
+// 输入
+import { Button } from "antd";
+
+// 输出
+import Button from "antd/es/button";        // 主导入
+import "antd/es/button/style/css";          // 副作用导入 1
+import "antd/css/button.png";               // 副作用导入 2
+```
 
 ### FilenameCase - 文件名转换规则
 
@@ -625,6 +665,45 @@ import Button from 'antd/es/button';  // 只导入 Button 组件
 ---
 
 ## 常见问题
+
+### Q: output 数组的顺序有什么要求?
+
+**A:** ⚠️ **非常重要!** `output` 数组的顺序决定了生成的导入类型:
+
+- **第一个元素** = 主导入(带标识符)
+- **后续元素** = 副作用导入(无标识符)
+
+**❌ 错误配置:**
+```json
+{
+  "output": [
+    "antd/es/{{ filename }}/style/css",  // ❌ 样式不应该在第一个!
+    "antd/es/{{ filename }}"
+  ]
+}
+```
+
+这会生成:
+```javascript
+import Button from "antd/es/button/style/css";  // ❌ 错误!导入了样式文件
+import "antd/es/button";                        // ❌ 组件变成了副作用导入
+```
+
+**✅ 正确配置:**
+```json
+{
+  "output": [
+    "antd/es/{{ filename }}",            // ✅ 组件在第一个
+    "antd/es/{{ filename }}/style/css"   // ✅ 样式在后面
+  ]
+}
+```
+
+这会生成:
+```javascript
+import Button from "antd/es/button";       // ✅ 正确!
+import "antd/es/button/style/css";         // ✅ 正确!
+```
 
 ### Q: Babel 和 SWC 插件的配置格式是否相同?
 
