@@ -1,6 +1,6 @@
 {
   "name": "transform-import-declaration-plugin",
-  "version": "0.0.5",
+  "version": "0.0.6-alpha.0",
   "description": "",
   "private": true,
   "scripts": {
@@ -13,10 +13,13 @@
     "test:watch": "pnpm -r run test:watch",
     "clean": "pnpm -r run clean && rm -rf node_modules",
     "dev": "pnpm -r --parallel run dev",
-    "publish": "pnpm -r --filter './packages/*' publish"
+    "publish": "pnpm -r --filter './packages/*' publish",
+    "prerelease": "node ./script/prerelease.mts"
   },
   "keywords": [],
-  "author": "ityuany",
+  "author": {
+    "name": "ityuany"
+  },
   "license": "MIT",
   "packageManager": "pnpm@10.20.0",
   "devDependencies": {
@@ -27,5 +30,16 @@
     "@types/babel__core": "^7.20.5",
     "typescript": "^5.9.3",
     "vitest": "^4.0.12"
-  }
+  },
+  "dependencies": {
+    "@types/semver": "^7.7.1",
+    "enquirer": "^2.4.1",
+    "execa": "^9.6.0",
+    "globby": "^16.0.0",
+    "read-pkg": "^10.0.0",
+    "semver": "^7.7.3",
+    "write-pkg": "^7.0.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "transform-import-declaration-plugin@0.0.5"
 }

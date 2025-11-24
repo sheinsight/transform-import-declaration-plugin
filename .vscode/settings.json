@@ -3,6 +3,7 @@
     "antd",
     "bundless",
     "cdylib",
+    "premajor",
     "serde"
   ]
 }
