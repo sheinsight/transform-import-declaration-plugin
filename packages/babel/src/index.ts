@@ -52,7 +52,7 @@ export default function transformImportDeclarationPlugin(): PluginObj {
         // 收集需要转换的命名导入 (排除 type-only 导入)
         const namedImports = node.specifiers.filter(
           (spec) =>
-            spec.type === "ImportSpecifier" && spec.importKind !== "type"
+            t.isImportSpecifier(spec) && spec.importKind !== "type"
         ) as ImportSpecifier[];
 
         if (namedImports.length === 0) {
@@ -66,7 +66,7 @@ export default function transformImportDeclarationPlugin(): PluginObj {
           | ImportSpecifier
         )[] = node.specifiers.filter(
           (spec) =>
-            spec.type !== "ImportSpecifier" || spec.importKind === "type"
+            !t.isImportSpecifier(spec) || spec.importKind === "type"
         );
 
         // 创建新的导入声明
@@ -74,10 +74,9 @@ export default function transformImportDeclarationPlugin(): PluginObj {
 
         // 处理每个命名导入
         namedImports.forEach((specifier) => {
-          const importedName =
-            specifier.imported.type === "Identifier"
-              ? specifier.imported.name
-              : specifier.imported.value;
+          const importedName = t.isIdentifier(specifier.imported)
+            ? specifier.imported.name
+            : specifier.imported.value;
           const localName = specifier.local.name;
 
           // 尝试找到第一个匹配的配置
