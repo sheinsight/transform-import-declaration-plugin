@@ -9,7 +9,7 @@ use swc_core::ecma::ast::{
 use swc_core::ecma::visit::VisitMut;
 
 /// 文件名转换规则
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Copy)]
 #[serde(rename_all = "camelCase")]
 pub enum FilenameCase {
     KebabCase,
@@ -19,18 +19,12 @@ pub enum FilenameCase {
 }
 
 /// 导入说明符类型
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Copy)]
 #[serde(rename_all = "camelCase")]
 pub enum SpecifierType {
     Default,
     Named,
     Namespace,
-}
-
-impl Default for SpecifierType {
-    fn default() -> Self {
-        SpecifierType::Default
-    }
 }
 
 /// 单个转换配置
@@ -39,13 +33,14 @@ impl Default for SpecifierType {
 pub struct TransformConfig {
     /// 源模块名称
     pub source: String,
-    /// 文件名转换规则
-    pub filename: FilenameCase,
     /// 输出路径模板数组
     pub output: Vec<String>,
+    /// 文件名转换规则
+    #[serde(default)]
+    pub filename: Option<FilenameCase>,
     /// 导入说明符类型，默认为 default
     #[serde(default)]
-    pub specifier: SpecifierType,
+    pub specifier: Option<SpecifierType>,
     /// 只处理指定的组件名称
     #[serde(default)]
     pub include: Option<Vec<String>>,
@@ -136,18 +131,22 @@ impl ImportTransformer {
         local_ident: &Ident,
         config: &TransformConfig,
     ) -> Vec<ModuleItem> {
-        let transformed_filename = transform_filename(imported_name, &config.filename);
+        let filename = &config.filename.unwrap_or(FilenameCase::CamelCase);
+
+        let transformed_filename = transform_filename(imported_name, filename);
         let mut imports = Vec::new();
 
         // 使用正则表达式替换，支持空格变体如 {{filename}}, {{ filename }}, {{  filename  }} 等
         let re = Regex::new(r"\{\{\s*filename\s*\}\}").unwrap();
+
+        let specifier = config.specifier.unwrap_or(SpecifierType::Default);
 
         for (index, output_template) in config.output.iter().enumerate() {
             let import_path = re.replace_all(output_template, &transformed_filename).to_string();
 
             if index == 0 {
                 // 第一个 output 生成主导入（根据 specifier 类型）
-                let import_decl = match config.specifier {
+                let import_decl = match specifier {
                     SpecifierType::Default => {
                         // import Button from "path"
                         ImportDecl {
@@ -281,8 +280,11 @@ impl VisitMut for ImportTransformer {
                                     for config in &matched_configs {
                                         if config.matches(&imported_name) {
                                             // 生成转换后的导入（传递完整的 Ident 以保持 SyntaxContext）
-                                            let generated_imports =
-                                                self.generate_imports(&imported_name, local_ident, config);
+                                            let generated_imports = self.generate_imports(
+                                                &imported_name,
+                                                local_ident,
+                                                config,
+                                            );
                                             new_items.extend(generated_imports);
                                             matched = true;
                                             break; // 找到匹配的配置后停止
@@ -367,9 +369,9 @@ mod tests {
     fn test_config_matches_with_include() {
         let config = TransformConfig {
             source: "antd".to_string(),
-            filename: FilenameCase::KebabCase,
+            filename: Some(FilenameCase::KebabCase),
             output: vec!["antd/es/{{ filename }}.js".to_string()],
-            specifier: SpecifierType::Default,
+            specifier: Some(SpecifierType::Default),
             include: Some(vec!["Button".to_string()]),
             exclude: None,
         };
@@ -382,9 +384,9 @@ mod tests {
     fn test_config_matches_with_exclude() {
         let config = TransformConfig {
             source: "antd".to_string(),
-            filename: FilenameCase::KebabCase,
+            filename: Some(FilenameCase::KebabCase),
             output: vec!["antd/es/{{ filename }}.js".to_string()],
-            specifier: SpecifierType::Default,
+            specifier: Some(SpecifierType::Default),
             include: None,
             exclude: Some(vec!["Button".to_string()]),
         };
@@ -397,9 +399,9 @@ mod tests {
     fn test_config_matches_without_filters() {
         let config = TransformConfig {
             source: "antd".to_string(),
-            filename: FilenameCase::KebabCase,
+            filename: Some(FilenameCase::KebabCase),
             output: vec!["antd/es/{{ filename }}.js".to_string()],
-            specifier: SpecifierType::Default,
+            specifier: Some(SpecifierType::Default),
             include: None,
             exclude: None,
         };
@@ -415,9 +417,9 @@ mod tests {
         let config = PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::KebabCase,
+                filename: Some(FilenameCase::KebabCase),
                 output: vec!["antd/es/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: Some(vec!["Button".to_string()]),
                 exclude: Some(vec!["Table".to_string()]),
             }],
@@ -434,9 +436,9 @@ mod tests {
         let config = PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::KebabCase,
+                filename: Some(FilenameCase::KebabCase),
                 output: vec!["antd/es/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: Some(vec!["Button".to_string()]),
                 exclude: None,
             }],
@@ -451,9 +453,9 @@ mod tests {
         let config = PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::KebabCase,
+                filename: Some(FilenameCase::KebabCase),
                 output: vec!["antd/es/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: None,
                 exclude: Some(vec!["Button".to_string()]),
             }],
@@ -468,9 +470,9 @@ mod tests {
         let config = PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::KebabCase,
+                filename: Some(FilenameCase::KebabCase),
                 output: vec!["antd/es/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: None,
                 exclude: None,
             }],
@@ -491,9 +493,9 @@ mod integration_tests {
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::KebabCase,
+                filename: Some(FilenameCase::KebabCase),
                 output: vec!["antd/es/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: None,
                 exclude: None,
             }],
@@ -508,12 +510,12 @@ mod integration_tests {
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::KebabCase,
+                filename: Some(FilenameCase::KebabCase),
                 output: vec![
                     "antd/es/{{ filename }}.js".to_string(),
                     "antd/css/{{ filename }}.css".to_string(),
                 ],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: None,
                 exclude: None,
             }],
@@ -531,9 +533,9 @@ import "antd/css/button.css";
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::KebabCase,
+                filename: Some(FilenameCase::KebabCase),
                 output: vec!["antd/es/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: None,
                 exclude: Some(vec!["Button".to_string()]),
             }],
@@ -552,23 +554,23 @@ import { Button } from "antd";
             config: vec![
                 TransformConfig {
                     source: "antd".to_string(),
-                    filename: FilenameCase::KebabCase,
+                    filename: Some(FilenameCase::KebabCase),
                     output: vec![
                         "antd/es/{{ filename }}.js".to_string(),
                         "antd/css/{{ filename }}.css".to_string(),
                     ],
-                    specifier: SpecifierType::Default,
+                    specifier: Some(SpecifierType::Default),
                     include: None,
                     exclude: Some(vec!["Button".to_string()]),
                 },
                 TransformConfig {
                     source: "antd".to_string(),
-                    filename: FilenameCase::KebabCase,
+                    filename: Some(FilenameCase::KebabCase),
                     output: vec![
                         "antd/es/{{ filename }}.js".to_string(),
                         "antd/css/{{ filename }}.png".to_string(),
                     ],
-                    specifier: SpecifierType::Default,
+                    specifier: Some(SpecifierType::Default),
                     include: Some(vec!["Button".to_string()]),
                     exclude: None,
                 },
@@ -589,9 +591,9 @@ import "antd/css/date-picker.css";
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "lodash".to_string(),
-                filename: FilenameCase::CamelCase,
+                filename: Some(FilenameCase::CamelCase),
                 output: vec!["lodash/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Named,
+                specifier: Some(SpecifierType::Named),
                 include: None,
                 exclude: None,
             }],
@@ -609,9 +611,9 @@ import { throttle } from "lodash/throttle.js";
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "utils".to_string(),
-                filename: FilenameCase::CamelCase,
+                filename: Some(FilenameCase::CamelCase),
                 output: vec!["utils/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Namespace,
+                specifier: Some(SpecifierType::Namespace),
                 include: None,
                 exclude: None,
             }],
@@ -629,9 +631,9 @@ import * as StringUtils from "utils/stringUtils.js";
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::SnakeCase,
+                filename: Some(FilenameCase::SnakeCase),
                 output: vec!["antd/es/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: None,
                 exclude: None,
             }],
@@ -646,9 +648,9 @@ import * as StringUtils from "utils/stringUtils.js";
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::PascalCase,
+                filename: Some(FilenameCase::PascalCase),
                 output: vec!["antd/es/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: None,
                 exclude: None,
             }],
@@ -663,9 +665,9 @@ import * as StringUtils from "utils/stringUtils.js";
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::KebabCase,
+                filename: Some(FilenameCase::KebabCase),
                 output: vec!["antd/es/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: None,
                 exclude: None,
             }],
@@ -693,9 +695,9 @@ import { useState } from "react";
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::KebabCase,
+                filename: Some(FilenameCase::KebabCase),
                 output: vec!["antd/es/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: None,
                 exclude: None,
             }],
@@ -711,9 +713,9 @@ import { useState } from "react";
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::KebabCase,
+                filename: Some(FilenameCase::KebabCase),
                 output: vec!["antd/es/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: None,
                 exclude: None,
             }],
@@ -729,9 +731,9 @@ import { useState } from "react";
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "antd".to_string(),
-                filename: FilenameCase::KebabCase,
+                filename: Some(FilenameCase::KebabCase),
                 output: vec!["antd/es/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Default,
+                specifier: Some(SpecifierType::Default),
                 include: None,
                 exclude: None,
             }],
@@ -747,9 +749,9 @@ import { useState } from "react";
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "lodash".to_string(),
-                filename: FilenameCase::CamelCase,
+                filename: Some(FilenameCase::CamelCase),
                 output: vec!["lodash/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Named,
+                specifier: Some(SpecifierType::Named),
                 include: None,
                 exclude: None,
             }],
@@ -765,9 +767,9 @@ import { useState } from "react";
         |_| visit_mut_pass(ImportTransformer::new(PluginConfig {
             config: vec![TransformConfig {
                 source: "utils".to_string(),
-                filename: FilenameCase::CamelCase,
+                filename: Some(FilenameCase::CamelCase),
                 output: vec!["utils/{{ filename }}.js".to_string()],
-                specifier: SpecifierType::Namespace,
+                specifier: Some(SpecifierType::Namespace),
                 include: None,
                 exclude: None,
             }],

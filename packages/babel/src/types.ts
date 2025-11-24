@@ -1,12 +1,16 @@
 /**
  * 文件名转换规则
  */
-export type FilenameCase = 'kebabCase' | 'camelCase' | 'snakeCase' | 'pascalCase';
+export type FilenameCase =
+  | "kebabCase"
+  | "camelCase"
+  | "snakeCase"
+  | "pascalCase";
 
 /**
  * 导入说明符类型
  */
-export type SpecifierType = 'default' | 'named' | 'namespace';
+export type SpecifierType = "default" | "named" | "namespace";
 
 /**
  * 转换配置
@@ -18,15 +22,15 @@ export interface TransformConfig {
   source: string;
 
   /**
-   * 文件名转换规则
-   */
-  filename: FilenameCase;
-
-  /**
    * 输出路径模板数组
    * 第一个为主导入，其余为副作用导入
    */
   output: string[];
+
+  /**
+   * 文件名转换规则
+   */
+  filename?: FilenameCase;
 
   /**
    * 导入说明符类型

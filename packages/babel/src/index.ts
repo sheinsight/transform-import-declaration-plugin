@@ -98,7 +98,7 @@ export default function transformImportDeclarationPlugin(): PluginObj {
           // 转换文件名
           const filename = transformFilename(
             importedName,
-            matchedConfig.filename
+            matchedConfig.filename || "camelCase"
           );
 
           // 生成导入路径
