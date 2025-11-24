@@ -1,7 +1,7 @@
 import { globby } from "globby";
 import { type NormalizedPackageJson, readPackage } from "read-pkg";
 import { writePackage } from "write-pkg";
-import { dirname } from "node:path";
+import { dirname, join } from "node:path";
 import enquirer from "enquirer";
 import semver from "semver";
 import { $ } from "execa";
@@ -89,8 +89,11 @@ ${published.map((v) => v.path).join("\n")}
 
 if (isSure) {
   for (const ele of published) {
-    console.log(ele);
     ele.content.version = v;
     await writePackage(ele.path, ele.content);
   }
+
+  root.version = v;
+
+  await writePackage(`${join(process.cwd(), "package.json")}`, root);
 }
