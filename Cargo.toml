@@ -13,6 +13,7 @@ rust-version = "1.82"
 
 [workspace.dependencies]
 heck       = { version = "0.5" }
+regex      = { version = "1.12.2" }
 serde      = { version = "1.0.228" }
 serde_json = { version = "1.0.145" }
 swc_core   = { version = "46.0.3" }

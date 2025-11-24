@@ -12,6 +12,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 heck       = { workspace = true }
+regex      = { workspace = true }
 serde      = { workspace = true }
 serde_json = { workspace = true }
 swc_core   = { workspace = true, features = ["ecma_plugin_transform"] }

@@ -5,3 +5,4 @@ target
 e2e-tests/.swc
 .swc
 packages/.DS_Store
+packages/babel/cjs

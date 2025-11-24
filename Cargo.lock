@@ -1684,6 +1684,7 @@ name = "swc_plugin_transform_import_declaration"
 version = "0.1.0"
 dependencies = [
  "heck",
+ "regex",
  "serde",
  "serde_json",
  "swc_core",

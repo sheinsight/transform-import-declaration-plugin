@@ -1,4 +1,5 @@
 use heck::{ToKebabCase, ToLowerCamelCase, ToPascalCase, ToSnakeCase};
+use regex::Regex;
 use serde::Deserialize;
 use swc_core::common::DUMMY_SP;
 use swc_core::ecma::ast::{
@@ -138,8 +139,11 @@ impl ImportTransformer {
         let transformed_filename = transform_filename(imported_name, &config.filename);
         let mut imports = Vec::new();
 
+        // 使用正则表达式替换，支持空格变体如 {{filename}}, {{ filename }}, {{  filename  }} 等
+        let re = Regex::new(r"\{\{\s*filename\s*\}\}").unwrap();
+
         for (index, output_template) in config.output.iter().enumerate() {
-            let import_path = output_template.replace("{{ filename }}", &transformed_filename);
+            let import_path = re.replace_all(output_template, &transformed_filename).to_string();
 
             if index == 0 {
                 // 第一个 output 生成主导入（根据 specifier 类型）
