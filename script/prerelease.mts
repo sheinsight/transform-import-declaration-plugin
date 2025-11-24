@@ -110,8 +110,8 @@ if (isSure) {
 
   await writePackage(`${join(process.cwd(), "package.json")}`, root);
 
-  // await $$`git add .`;
-  // const msg = `chore: release v${v}`;
-  // await $$`git commit -m ${msg}`;
-  // await $$`git tag v${v}`;
+  await $$`git add .`;
+  const msg = `chore: release v${v}`;
+  await $$`git commit -m ${msg}`;
+  await $$`git tag v${v}`;
 }
