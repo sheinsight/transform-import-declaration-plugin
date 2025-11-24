@@ -56,7 +56,7 @@ yarn add -D @shined/swc-plugin-transform-import-declaration
           {
             "source": "antd",
             "filename": "kebabCase",
-            "output": ["antd/es/{{ filename }}"]
+            "output": ["antd/es/{{ filename }}/index.js"]
           }
         ]
       }
@@ -114,7 +114,7 @@ module.exports = {
                         {
                           source: 'antd',
                           filename: 'kebabCase',
-                          output: ['antd/es/{{ filename }}']
+                          output: ['antd/es/{{ filename }}/index.js']
                         }
                       ]
                     }
@@ -141,8 +141,8 @@ import { Button, DatePicker } from 'antd';
 **转换后:**
 
 ```javascript
-import Button from 'antd/es/button';
-import DatePicker from 'antd/es/date-picker';
+import Button from 'antd/es/button/index.js';
+import DatePicker from 'antd/es/date-picker/index.js';
 ```
 
 ## 配置选项
@@ -166,14 +166,14 @@ import DatePicker from 'antd/es/date-picker';
 
 - **第一个元素(必需)**: 生成**主导入**语句,包含导入标识符
   ```javascript
-  // output[0]: "antd/es/{{ filename }}"
-  import Button from "antd/es/button";  // 带标识符 Button
+  // output[0]: "antd/es/{{ filename }}/index.js"
+  import Button from "antd/es/button/index.js";  // 带标识符 Button
   ```
 
 - **后续元素(可选)**: 生成**副作用导入**语句,不包含标识符,通常用于导入样式文件
   ```javascript
-  // output[1]: "antd/es/{{ filename }}/style/css"
-  import "antd/es/button/style/css";  // 无标识符,仅导入副作用
+  // output[1]: "antd/es/{{ filename }}/style/index.css"
+  import "antd/es/button/style/index.css";  // 无标识符,仅导入副作用
   ```
 
 **示例:**
@@ -181,9 +181,9 @@ import DatePicker from 'antd/es/date-picker';
 ```json
 {
   "output": [
-    "antd/es/{{ filename }}",           // 主导入
-    "antd/es/{{ filename }}/style/css", // 副作用导入 1
-    "antd/css/{{ filename }}.png"       // 副作用导入 2
+    "antd/es/{{ filename }}/index.js",       // 主导入
+    "antd/es/{{ filename }}/style/index.css", // 副作用导入 1
+    "antd/css/{{ filename }}.png"            // 副作用导入 2
   ]
 }
 ```
@@ -195,9 +195,9 @@ import DatePicker from 'antd/es/date-picker';
 import { Button } from "antd";
 
 // 输出
-import Button from "antd/es/button";        // 主导入
-import "antd/es/button/style/css";          // 副作用导入 1
-import "antd/css/button.png";               // 副作用导入 2
+import Button from "antd/es/button/index.js";        // 主导入
+import "antd/es/button/style/index.css";             // 副作用导入 1
+import "antd/css/button.png";                         // 副作用导入 2
 ```
 
 ### FilenameCase - 文件名转换规则
@@ -228,14 +228,14 @@ import "antd/css/button.png";               // 副作用导入 2
 {
   "source": "antd",
   "filename": "kebabCase",
-  "output": ["antd/es/{{ filename }}"]
+  "output": ["antd/es/{{ filename }}/index.js"]
 }
 
 // 转换前
 import { Button } from "antd";
 
 // 转换后 👇
-import Button from "antd/es/button";
+import Button from "antd/es/button/index.js";
 ```
 
 ---
@@ -250,8 +250,8 @@ import Button from "antd/es/button";
   "source": "antd",
   "filename": "kebabCase",
   "output": [
-    "antd/es/{{ filename }}",
-    "antd/es/{{ filename }}/style/css"
+    "antd/es/{{ filename }}/index.js",
+    "antd/es/{{ filename }}/style/index.css"
   ]
 }
 
@@ -259,8 +259,8 @@ import Button from "antd/es/button";
 import { Button } from "antd";
 
 // 转换后 👇
-import Button from "antd/es/button";
-import "antd/es/button/style/css";
+import Button from "antd/es/button/index.js";
+import "antd/es/button/style/index.css";
 ```
 
 ---
@@ -275,8 +275,8 @@ import "antd/es/button/style/css";
   "source": "antd",
   "filename": "kebabCase",
   "output": [
-    "antd/es/{{ filename }}",
-    "antd/es/{{ filename }}/style/css"
+    "antd/es/{{ filename }}/index.js",
+    "antd/es/{{ filename }}/style/index.css"
   ],
   "exclude": ["Button"]
 }
@@ -286,8 +286,8 @@ import { Button, DatePicker } from "antd";
 
 // 转换后 👇
 import { Button } from "antd";  // Button 被排除,保持原样
-import DatePicker from "antd/es/date-picker";
-import "antd/es/date-picker/style/css";
+import DatePicker from "antd/es/date-picker/index.js";
+import "antd/es/date-picker/style/index.css";
 ```
 
 ---
@@ -301,7 +301,7 @@ import "antd/es/date-picker/style/css";
 {
   "source": "antd",
   "filename": "kebabCase",
-  "output": ["antd/es/{{ filename }}"],
+  "output": ["antd/es/{{ filename }}/index.js"],
   "include": ["Button", "Input"]
 }
 
@@ -309,8 +309,8 @@ import "antd/es/date-picker/style/css";
 import { Button, DatePicker, Input } from "antd";
 
 // 转换后 👇
-import Button from "antd/es/button";
-import Input from "antd/es/input";
+import Button from "antd/es/button/index.js";
+import Input from "antd/es/input/index.js";
 import { DatePicker } from "antd";  // DatePicker 不在 include 中,保持原样
 ```
 
@@ -327,8 +327,8 @@ import { DatePicker } from "antd";  // DatePicker 不在 include 中,保持原�
     "source": "antd",
     "filename": "kebabCase",
     "output": [
-      "antd/es/{{ filename }}",
-      "antd/es/{{ filename }}/style/css"
+      "antd/es/{{ filename }}/index.js",
+      "antd/es/{{ filename }}/style/index.css"
     ],
     "exclude": ["Button"]
   },
@@ -336,8 +336,8 @@ import { DatePicker } from "antd";  // DatePicker 不在 include 中,保持原�
     "source": "antd",
     "filename": "kebabCase",
     "output": [
-      "antd/es/{{ filename }}",
-      "antd/es/{{ filename }}/style/less"
+      "antd/es/{{ filename }}/index.js",
+      "antd/es/{{ filename }}/style/index.less"
     ],
     "include": ["Button"]
   }
@@ -347,10 +347,10 @@ import { DatePicker } from "antd";  // DatePicker 不在 include 中,保持原�
 import { Button, DatePicker } from "antd";
 
 // 转换后 👇
-import DatePicker from "antd/es/date-picker";
-import "antd/es/date-picker/style/css";  // 使用第一个规则,导入 CSS
-import Button from "antd/es/button";
-import "antd/es/button/style/less";      // 使用第二个规则,导入 LESS
+import DatePicker from "antd/es/date-picker/index.js";
+import "antd/es/date-picker/style/index.css";  // 使用第一个规则,导入 CSS
+import Button from "antd/es/button/index.js";
+import "antd/es/button/style/index.less";      // 使用第二个规则,导入 LESS
 ```
 
 ---
@@ -367,14 +367,14 @@ import "antd/es/button/style/less";      // 使用第二个规则,导入 LESS
   "source": "antd",
   "filename": "kebabCase",
   "specifier": "default",  // 默认值,可省略
-  "output": ["antd/es/{{ filename }}"]
+  "output": ["antd/es/{{ filename }}/index.js"]
 }
 
 // 转换前
 import { Button } from "antd";
 
 // 转换后 👇
-import Button from "antd/es/button";
+import Button from "antd/es/button/index.js";
 ```
 
 #### 命名导入(named)
@@ -385,15 +385,15 @@ import Button from "antd/es/button";
   "source": "lodash",
   "filename": "kebabCase",
   "specifier": "named",
-  "output": ["lodash/{{ filename }}"]
+  "output": ["lodash/{{ filename }}.js"]
 }
 
 // 转换前
 import { debounce, throttle } from "lodash";
 
 // 转换后 👇
-import { debounce } from "lodash/debounce";
-import { throttle } from "lodash/throttle";
+import { debounce } from "lodash/debounce.js";
+import { throttle } from "lodash/throttle.js";
 ```
 
 #### 命名空间导入(namespace)
@@ -404,15 +404,15 @@ import { throttle } from "lodash/throttle";
   "source": "utils",
   "filename": "camelCase",
   "specifier": "namespace",
-  "output": ["utils/{{ filename }}"]
+  "output": ["utils/{{ filename }}.js"]
 }
 
 // 转换前
 import { DateUtils, StringUtils } from "utils";
 
 // 转换后 👇
-import * as DateUtils from "utils/dateUtils";
-import * as StringUtils from "utils/stringUtils";
+import * as DateUtils from "utils/dateUtils.js";
+import * as StringUtils from "utils/stringUtils.js";
 ```
 
 ---
@@ -423,30 +423,30 @@ import * as StringUtils from "utils/stringUtils";
 // kebabCase - 推荐用于大多数情况
 {
   "filename": "kebabCase",
-  "output": ["lib/{{ filename }}"]
+  "output": ["lib/{{ filename }}.js"]
 }
-// DatePicker → lib/date-picker
+// DatePicker → lib/date-picker.js
 
 // camelCase - 适用于驼峰命名的文件系统
 {
   "filename": "camelCase",
-  "output": ["lib/{{ filename }}"]
+  "output": ["lib/{{ filename }}.js"]
 }
-// DatePicker → lib/datePicker
+// DatePicker → lib/datePicker.js
 
 // snakeCase - 适用于使用下划线的项目
 {
   "filename": "snakeCase",
-  "output": ["lib/{{ filename }}"]
+  "output": ["lib/{{ filename }}.js"]
 }
-// DatePicker → lib/date_picker
+// DatePicker → lib/date_picker.js
 
 // pascalCase - 保持原始大小写
 {
   "filename": "pascalCase",
-  "output": ["lib/{{ filename }}"]
+  "output": ["lib/{{ filename }}.js"]
 }
-// DatePicker → lib/DatePicker
+// DatePicker → lib/DatePicker.js
 ```
 
 ---
@@ -468,8 +468,8 @@ import * as StringUtils from "utils/stringUtils";
             "source": "antd",
             "filename": "kebabCase",
             "output": [
-              "antd/es/{{ filename }}",
-              "antd/es/{{ filename }}/style/css"
+              "antd/es/{{ filename }}/index.js",
+              "antd/es/{{ filename }}/style/index.css"
             ]
           }
         ]
@@ -494,8 +494,8 @@ import * as StringUtils from "utils/stringUtils";
                 "source": "antd",
                 "filename": "kebabCase",
                 "output": [
-                  "antd/es/{{ filename }}",
-                  "antd/es/{{ filename }}/style/css"
+                  "antd/es/{{ filename }}/index.js",
+                  "antd/es/{{ filename }}/style/index.css"
                 ]
               }
             ]
@@ -514,12 +514,12 @@ import * as StringUtils from "utils/stringUtils";
 import { Button, Table, Form } from 'antd';
 
 // 自动转换为
-import Button from 'antd/es/button';
-import 'antd/es/button/style/css';
-import Table from 'antd/es/table';
-import 'antd/es/table/style/css';
-import Form from 'antd/es/form';
-import 'antd/es/form/style/css';
+import Button from 'antd/es/button/index.js';
+import 'antd/es/button/style/index.css';
+import Table from 'antd/es/table/index.js';
+import 'antd/es/table/style/index.css';
+import Form from 'antd/es/form/index.js';
+import 'antd/es/form/style/index.css';
 ```
 
 ---
@@ -533,7 +533,7 @@ import 'antd/es/form/style/css';
   "source": "lodash",
   "filename": "camelCase",
   "specifier": "default",
-  "output": ["lodash/{{ filename }}"]
+  "output": ["lodash/{{ filename }}.js"]
 }
 ```
 
@@ -544,9 +544,9 @@ import 'antd/es/form/style/css';
 import { debounce, throttle, cloneDeep } from 'lodash';
 
 // 自动转换为
-import debounce from 'lodash/debounce';
-import throttle from 'lodash/throttle';
-import cloneDeep from 'lodash/cloneDeep';
+import debounce from 'lodash/debounce.js';
+import throttle from 'lodash/throttle.js';
+import cloneDeep from 'lodash/cloneDeep.js';
 ```
 
 ---
@@ -560,8 +560,8 @@ import cloneDeep from 'lodash/cloneDeep';
   "source": "element-plus",
   "filename": "kebabCase",
   "output": [
-    "element-plus/es/components/{{ filename }}",
-    "element-plus/es/components/{{ filename }}/style/css"
+    "element-plus/es/components/{{ filename }}/index.js",
+    "element-plus/es/components/{{ filename }}/style/index.css"
   ]
 }
 ```
@@ -573,10 +573,10 @@ import cloneDeep from 'lodash/cloneDeep';
 import { ElButton, ElTable } from 'element-plus';
 
 // 自动转换为
-import ElButton from 'element-plus/es/components/el-button';
-import 'element-plus/es/components/el-button/style/css';
-import ElTable from 'element-plus/es/components/el-table';
-import 'element-plus/es/components/el-table/style/css';
+import ElButton from 'element-plus/es/components/el-button/index.js';
+import 'element-plus/es/components/el-button/style/index.css';
+import ElTable from 'element-plus/es/components/el-table/index.js';
+import 'element-plus/es/components/el-table/style/index.css';
 ```
 
 ---
@@ -677,32 +677,32 @@ import Button from 'antd/es/button';  // 只导入 Button 组件
 ```json
 {
   "output": [
-    "antd/es/{{ filename }}/style/css",  // ❌ 样式不应该在第一个!
-    "antd/es/{{ filename }}"
+    "antd/es/{{ filename }}/style/index.css",  // ❌ 样式不应该在第一个!
+    "antd/es/{{ filename }}/index.js"
   ]
 }
 ```
 
 这会生成:
 ```javascript
-import Button from "antd/es/button/style/css";  // ❌ 错误!导入了样式文件
-import "antd/es/button";                        // ❌ 组件变成了副作用导入
+import Button from "antd/es/button/style/index.css";  // ❌ 错误!导入了样式文件
+import "antd/es/button/index.js";                     // ❌ 组件变成了副作用导入
 ```
 
 **✅ 正确配置:**
 ```json
 {
   "output": [
-    "antd/es/{{ filename }}",            // ✅ 组件在第一个
-    "antd/es/{{ filename }}/style/css"   // ✅ 样式在后面
+    "antd/es/{{ filename }}/index.js",         // ✅ 组件在第一个
+    "antd/es/{{ filename }}/style/index.css"   // ✅ 样式在后面
   ]
 }
 ```
 
 这会生成:
 ```javascript
-import Button from "antd/es/button";       // ✅ 正确!
-import "antd/es/button/style/css";         // ✅ 正确!
+import Button from "antd/es/button/index.js";       // ✅ 正确!
+import "antd/es/button/style/index.css";            // ✅ 正确!
 ```
 
 ### Q: Babel 和 SWC 插件的配置格式是否相同?
@@ -720,8 +720,8 @@ import "antd/es/button/style/css";         // ✅ 正确!
 ```json
 {
   "output": [
-    "antd/es/{{ filename }}",           // 主导入
-    "antd/es/{{ filename }}/style/css"  // 样式导入
+    "antd/es/{{ filename }}/index.js",         // 主导入
+    "antd/es/{{ filename }}/style/index.css"   // 样式导入
   ]
 }
 ```
