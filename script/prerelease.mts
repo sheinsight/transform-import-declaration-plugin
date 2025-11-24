@@ -90,10 +90,26 @@ ${published.map((v) => `${v.content.name} In ${v.path}`).join("\n")}
 if (isSure) {
   for (const ele of published) {
     ele.content.version = v;
+
+    if (ele.content.publishConfig === undefined) {
+      throw new Error(`Please config publishConfig in ${ele.path}`);
+    } else {
+      if (v.includes("alpha")) {
+        ele.content.publishConfig.tag = "alpha";
+      } else {
+        ele.content.publishConfig.tag = "latest";
+      }
+    }
+
     await writePackage(ele.path, ele.content);
   }
 
   root.version = v;
 
   await writePackage(`${join(process.cwd(), "package.json")}`, root);
+
+  // await $$`git add .`;
+  // const msg = `chore: release v${v}`;
+  // await $$`git commit -m ${msg}`;
+  // await $$`git tag v${v}`;
 }
