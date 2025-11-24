@@ -69,6 +69,20 @@ describe('configMatches', () => {
 });
 
 describe('validateConfig', () => {
+  it('should throw error when output is empty array', () => {
+    const configs: TransformConfig[] = [
+      {
+        source: 'antd',
+        filename: 'kebabCase',
+        output: []
+      }
+    ];
+
+    expect(() => validateConfig(configs)).toThrow(
+      "'output' must be a non-empty array"
+    );
+  });
+
   it('should throw error when both include and exclude are configured', () => {
     const configs: TransformConfig[] = [
       {
@@ -117,6 +131,21 @@ describe('validateConfig', () => {
         source: 'antd',
         filename: 'kebabCase',
         output: ['antd/es/{{ filename }}.js']
+      }
+    ];
+
+    expect(() => validateConfig(configs)).not.toThrow();
+  });
+
+  it('should not throw when output has valid paths', () => {
+    const configs: TransformConfig[] = [
+      {
+        source: 'antd',
+        filename: 'kebabCase',
+        output: [
+          'antd/es/{{ filename }}/index.js',
+          'antd/es/{{ filename }}/style/index.css'
+        ]
       }
     ];
 

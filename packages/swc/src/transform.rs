@@ -60,6 +60,18 @@ impl PluginConfig {
     /// 验证配置的有效性
     pub fn validate(&self) -> Result<(), String> {
         for (index, config) in self.config.iter().enumerate() {
+            // 检查 output 不能为空数组
+            if config.output.is_empty() {
+                return Err(format!(
+                    "Config #{} (source: '{}'): 'output' must be a non-empty array.\n\
+                    The 'output' array defines the import paths to generate:\n\
+                    - First element: main import (with identifier)\n\
+                    - Remaining elements: side-effect imports (e.g., styles)\n\
+                    Example: [\"antd/es/{{{{ filename }}}}/index.js\", \"antd/es/{{{{ filename }}}}/style/index.css\"]",
+                    index, config.source
+                ));
+            }
+
             // 检查 include 和 exclude 不能同时存在
             if config.include.is_some() && config.exclude.is_some() {
                 return Err(format!(
@@ -409,6 +421,25 @@ mod tests {
         assert!(config.matches("Button"));
         assert!(config.matches("DatePicker"));
         assert!(config.matches("AnyComponent"));
+    }
+
+    #[test]
+    fn test_config_validation_rejects_empty_output() {
+        // 测试验证逻辑：不允许空 output 数组
+        let config = PluginConfig {
+            config: vec![TransformConfig {
+                source: "antd".to_string(),
+                filename: Some(FilenameCase::KebabCase),
+                output: vec![],
+                specifier: Some(SpecifierType::Default),
+                include: None,
+                exclude: None,
+            }],
+        };
+
+        let result = config.validate();
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("'output' must be a non-empty array"));
     }
 
     #[test]

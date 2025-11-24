@@ -42,6 +42,18 @@ export function configMatches(config: TransformConfig, name: string): boolean {
  */
 export function validateConfig(configs: TransformConfig[]): void {
   configs.forEach((config, index) => {
+    // 验证 output 不能为空数组
+    if (!config.output || config.output.length === 0) {
+      throw new Error(
+        `Config #${index} (source: '${config.source}'): 'output' must be a non-empty array.\n` +
+          `The 'output' array defines the import paths to generate:\n` +
+          `- First element: main import (with identifier)\n` +
+          `- Remaining elements: side-effect imports (e.g., styles)\n` +
+          `Example: ["antd/es/{{ filename }}/index.js", "antd/es/{{ filename }}/style/index.css"]`
+      );
+    }
+
+    // 验证 include 和 exclude 不能同时使用
     if (config.include && config.exclude) {
       throw new Error(
         `Config #${index} (source: '${config.source}'): 'include' and 'exclude' cannot be used together.\n` +
