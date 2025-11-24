@@ -83,7 +83,7 @@ const { isSure } = await enquirer.prompt<{ isSure: boolean }>({
   initial: false,
   name: "isSure",
   message: `Are you sure to release? [ ${v} ]
-${published.map((v) => v.path).join("\n")}
+${published.map((v) => `${v.content.name} In ${v.path}`).join("\n")}
 `,
 });
 
