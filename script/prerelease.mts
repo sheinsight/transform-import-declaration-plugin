@@ -96,6 +96,8 @@ if (isSure) {
     } else {
       if (v.includes("alpha")) {
         ele.content.publishConfig.tag = "alpha";
+      } else if (v.includes("snapshot")) {
+        ele.content.publishConfig.tag = "snapshot";
       } else {
         ele.content.publishConfig.tag = "latest";
       }
