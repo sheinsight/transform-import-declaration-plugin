@@ -15,7 +15,6 @@ import { transformFilename, configMatches, validateConfig } from "./transform";
 export default function transformImportDeclarationPlugin(): PluginObj {
   return {
     name: "transform-import-declaration",
-
     visitor: {
       Program: {
         enter(_, state) {
@@ -51,8 +50,7 @@ export default function transformImportDeclarationPlugin(): PluginObj {
 
         // 收集需要转换的命名导入 (排除 type-only 导入)
         const namedImports = node.specifiers.filter(
-          (spec) =>
-            t.isImportSpecifier(spec) && spec.importKind !== "type"
+          (spec) => t.isImportSpecifier(spec) && spec.importKind !== "type"
         ) as ImportSpecifier[];
 
         if (namedImports.length === 0) {
@@ -65,12 +63,11 @@ export default function transformImportDeclarationPlugin(): PluginObj {
           | ImportNamespaceSpecifier
           | ImportSpecifier
         )[] = node.specifiers.filter(
-          (spec) =>
-            !t.isImportSpecifier(spec) || spec.importKind === "type"
+          (spec) => !t.isImportSpecifier(spec) || spec.importKind === "type"
         );
 
         // 创建新的导入声明
-        const newImports: any[] = [];
+        const newImports: ImportDeclaration[] = [];
 
         // 处理每个命名导入
         namedImports.forEach((specifier) => {
