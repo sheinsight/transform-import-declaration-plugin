@@ -1,0 +1,8 @@
+packages/swc/target
+node_modules
+target
+*.wasm
+e2e-tests/.swc
+.swc
+packages/.DS_Store
+packages/babel/cjs
