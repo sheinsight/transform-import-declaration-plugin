@@ -24,6 +24,10 @@
     "registry": "https://registry.npmjs.org",
     "tag": "alpha"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sheinsight/transform-import-declaration-plugin"
+  },
   "scripts": {
     "build": "cargo build --release --target wasm32-wasip1",
     "postbuild": "cp ../../target/wasm32-wasip1/release/swc_plugin_transform_import_declaration.wasm .",
