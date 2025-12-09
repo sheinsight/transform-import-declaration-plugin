@@ -1,6 +1,6 @@
 {
   "name": "@shined/swc-plugin-transform-import-declaration",
-  "version": "0.0.6-alpha.0",
+  "version": "0.0.6-alpha.1",
   "description": "SWC plugin for transforming import declarations",
   "author": {
     "name": "ityuany"
@@ -35,5 +35,5 @@
     "clean-pkg-json": "^1.3.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "@shined/swc-plugin-transform-import-declaration@0.0.5"
+  "_id": "@shined/swc-plugin-transform-import-declaration@0.0.6-alpha.0"
 }
