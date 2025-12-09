@@ -1,6 +1,6 @@
 {
   "name": "@shined/babel-plugin-transform-import-declaration",
-  "version": "0.0.6-alpha.2",
+  "version": "0.0.6",
   "description": "A Babel plugin to transform import declarations for tree-shaking and on-demand loading",
   "main": "./cjs/index.js",
   "types": "./cjs/index.d.ts",
@@ -30,7 +30,7 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org",
-    "tag": "alpha"
+    "tag": "latest"
   },
   "repository": {
     "type": "git",
@@ -55,7 +55,7 @@
     "vitest": "^4.0.12"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "@shined/babel-plugin-transform-import-declaration@0.0.6-alpha.1",
+  "_id": "@shined/babel-plugin-transform-import-declaration@0.0.6-alpha.2",
   "bugs": {
     "url": "https://github.com/sheinsight/transform-import-declaration-plugin/issues"
   },

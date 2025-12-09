@@ -1,6 +1,6 @@
 {
   "name": "transform-import-declaration-plugin",
-  "version": "0.0.6-alpha.2",
+  "version": "0.0.6",
   "private": true,
   "scripts": {
     "build": "pnpm -r --filter './packages/*' run build",
@@ -40,5 +40,5 @@
     "write-pkg": "^7.0.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "transform-import-declaration-plugin@0.0.6-alpha.1"
+  "_id": "transform-import-declaration-plugin@0.0.6-alpha.2"
 }
