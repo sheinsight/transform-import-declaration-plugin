@@ -1,6 +1,6 @@
 {
   "name": "@shined/babel-plugin-transform-import-declaration",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A Babel plugin to transform import declarations for tree-shaking and on-demand loading",
   "main": "./cjs/index.js",
   "types": "./cjs/index.d.ts",
@@ -55,7 +55,7 @@
     "vitest": "^4.0.12"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "@shined/babel-plugin-transform-import-declaration@0.0.6-alpha.2",
+  "_id": "@shined/babel-plugin-transform-import-declaration@0.0.6",
   "bugs": {
     "url": "https://github.com/sheinsight/transform-import-declaration-plugin/issues"
   },
